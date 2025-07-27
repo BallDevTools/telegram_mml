@@ -1,0 +1,1031 @@
+/* public/css/components.css */
+
+/* Navigation Components */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--tg-theme-bg-color);
+    border-top: 1px solid var(--tg-theme-hint-color);
+    padding: 8px 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.nav-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: var(--tg-theme-hint-color);
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    min-width: 60px;
+}
+
+.nav-item.active,
+.nav-item:hover {
+    color: var(--tg-theme-button-color);
+    background: rgba(36, 129, 204, 0.1);
+}
+
+.nav-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+/* Plan Cards */
+.plan-card {
+    background: var(--tg-theme-bg-color);
+    border: 2px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.plan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.plan-card:hover::before {
+    transform: scaleX(1);
+}
+
+.plan-card.available {
+    border-color: var(--tg-theme-button-color);
+    box-shadow: 0 4px 20px rgba(36, 129, 204, 0.15);
+}
+
+.plan-card.owned {
+    border-color: #28a745;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+}
+
+.plan-card.locked {
+    opacity: 0.6;
+    border-color: #dee2e6;
+    background: rgba(108, 117, 125, 0.05);
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.plan-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.plan-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.plan-level {
+    color: var(--tg-theme-hint-color);
+    font-size: 0.875rem;
+}
+
+.plan-price {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.plan-price .amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--tg-theme-button-color);
+    display: block;
+}
+
+.plan-price .currency {
+    font-size: 1rem;
+    color: var(--tg-theme-hint-color);
+}
+
+.plan-stats {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.plan-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.plan-stat:last-child {
+    border-bottom: none;
+}
+
+.plan-stat .label {
+    font-size: 0.875rem;
+    color: var(--tg-theme-hint-color);
+}
+
+.plan-stat .value {
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.plan-benefits {
+    margin-bottom: 24px;
+}
+
+.plan-benefit {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 0.875rem;
+}
+
+.plan-benefit.premium {
+    color: var(--tg-theme-button-color);
+    font-weight: 500;
+}
+
+.plan-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.plan-button.available {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.plan-button.available:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(36, 129, 204, 0.3);
+}
+
+.plan-button.owned {
+    background: #28a745;
+    color: white;
+    cursor: default;
+}
+
+.plan-button.locked {
+    background: #dee2e6;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Membership NFT Card */
+.membership-nft-card {
+    max-width: 350px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 24px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.membership-nft-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    pointer-events: none;
+}
+
+.nft-card-header {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.nft-card-level {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.nft-card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.nft-card-image {
+    position: relative;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.nft-visual {
+    font-size: 4rem;
+    z-index: 2;
+    position: relative;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.nft-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    opacity: 0.3;
+}
+
+.nft-gradient.tier-1 {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+}
+
+.nft-gradient.tier-2 {
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+}
+
+.nft-gradient.tier-3 {
+    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+}
+
+.nft-gradient.tier-4 {
+    background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+}
+
+.nft-card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.nft-detail {
+    display: flex;
+    flex-direction: column;
+
+    .nft-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .nft-detail .label {
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+
+    .nft-detail .value {
+        font-weight: bold;
+    }
+
+    .status-active {
+        color: #00b894;
+    }
+
+    .non-transferable-badge {
+        text-align: center;
+        font-size: 0.9rem;
+        opacity: 0.8;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 8px 16px;
+        border-radius: 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: var(--tg-theme-bg-color);
+        border: 1px solid #e1e5e9;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card.earnings {
+        border-left: 4px solid #28a745;
+    }
+
+    .stat-card.referrals {
+        border-left: 4px solid #007bff;
+    }
+
+    .stat-card.plan {
+        border-left: 4px solid #6f42c1;
+    }
+
+    .stat-card.cycle {
+        border-left: 4px solid #fd7e14;
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        opacity: 0.8;
+    }
+
+    .stat-content h3 {
+        margin: 0 0 8px 0;
+        font-size: 0.875rem;
+        color: var(--tg-theme-hint-color);
+        font-weight: 500;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--tg-theme-text-color);
+        margin: 0;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin: 30px 0;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 20px;
+        background: var(--tg-theme-button-color);
+        color: var(--tg-theme-button-text-color);
+        text-decoration: none;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        justify-content: center;
+    }
+
+    .action-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .action-btn.upgrade {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .action-btn.refer {
+        background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    }
+
+    .action-btn.refresh {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    }
+
+    .btn-icon {
+        font-size: 1.1rem;
+    }
+
+    /* Referral Components */
+    .referrals-section {
+        margin: 40px 0;
+    }
+
+    .referrals-list {
+        display: grid;
+        gap: 15px;
+    }
+
+    .referral-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        background: var(--tg-theme-bg-color);
+        border: 1px solid #e1e5e9;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .referral-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .referral-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--tg-theme-button-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .referral-info {
+        flex: 1;
+    }
+
+    .referral-name {
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .referral-username {
+        color: var(--tg-theme-hint-color);
+        font-size: 0.875rem;
+        margin-bottom: 2px;
+    }
+
+    .referral-date {
+        color: var(--tg-theme-hint-color);
+        font-size: 0.75rem;
+    }
+
+    /* System Stats */
+    .system-stats {
+        margin: 40px 0;
+        padding: 24px;
+        background: var(--tg-theme-secondary-bg-color);
+        border-radius: 12px;
+    }
+
+    .system-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .system-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+        padding: 16px;
+        background: var(--tg-theme-bg-color);
+        border-radius: 8px;
+    }
+
+    .system-stat .label {
+        font-size: 0.875rem;
+        color: var(--tg-theme-hint-color);
+        font-weight: 500;
+    }
+
+    .system-stat .value {
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: var(--tg-theme-button-color);
+    }
+
+    /* Tier Badges */
+    .tier-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .tier-badge.starter {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        color: #d63031;
+    }
+
+    .tier-badge.premium {
+        background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+        color: white;
+    }
+
+    .tier-badge.elite {
+        background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+        color: white;
+    }
+
+    .tier-badge.infinity {
+        background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+        color: white;
+    }
+
+    /* Feature Cards */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    .feature-card {
+        padding: 30px 20px;
+        border-radius: 12px;
+        border: 1px solid #e1e5e9;
+        transition: all 0.3s ease;
+        text-align: center;
+        background: var(--tg-theme-bg-color);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border-color: var(--tg-theme-button-color);
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .feature-card h3 {
+        margin-bottom: 12px;
+        font-size: 1.25rem;
+    }
+
+    .feature-card p {
+        color: var(--tg-theme-hint-color);
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* Step Cards */
+    .steps-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+        padding: 0 40px;
+    }
+
+    .step {
+        text-align: center;
+        position: relative;
+    }
+
+    .step::after {
+        content: '';
+        position: absolute;
+        top: 25px;
+        left: calc(100% + 15px);
+        width: 30px;
+        height: 2px;
+        background: var(--tg-theme-button-color);
+        z-index: -1;
+    }
+
+    .step:last-child::after {
+        display: none;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--tg-theme-button-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin: 0 auto 20px;
+        box-shadow: 0 4px 10px rgba(36, 129, 204, 0.3);
+    }
+
+    .step-content h3 {
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+    }
+
+    .step-content p {
+        color: var(--tg-theme-hint-color);
+        font-size: 0.875rem;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    /* Members List */
+    .members-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .member-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #e1e5e9;
+        background: var(--tg-theme-bg-color);
+        transition: all 0.2s ease;
+    }
+
+    .member-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--tg-theme-button-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    .member-info {
+        flex: 1;
+    }
+
+    .member-name {
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .member-date {
+        color: var(--tg-theme-hint-color);
+        font-size: 0.875rem;
+    }
+
+    .member-status {
+        font-size: 1.2rem;
+    }
+
+    /* Help Section */
+    .help-section {
+        margin: 40px 0;
+    }
+
+    .help-items {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .help-item {
+        display: flex;
+        gap: 16px;
+        padding: 16px;
+        background: var(--tg-theme-secondary-bg-color);
+        border-radius: 8px;
+        border-left: 4px solid var(--tg-theme-button-color);
+    }
+
+    .help-icon {
+        font-size: 1.5rem;
+        color: var(--tg-theme-button-color);
+    }
+
+    .help-content h4 {
+        margin: 0 0 4px 0;
+        font-size: 1rem;
+    }
+
+    .help-content p {
+        margin: 0;
+        color: var(--tg-theme-hint-color);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    /* Network Info */
+    .network-info {
+        margin-top: 40px;
+        padding: 20px;
+        background: var(--tg-theme-secondary-bg-color);
+        border-radius: 12px;
+        border: 1px solid var(--tg-theme-hint-color);
+    }
+
+    .network-details {
+        margin-top: 16px;
+    }
+
+    .network-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .network-item:last-child {
+        border-bottom: none;
+    }
+
+    .network-item .label {
+        font-weight: 500;
+        color: var(--tg-theme-text-color);
+    }
+
+    .network-item .value {
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: var(--tg-theme-hint-color);
+        background: rgba(0, 0, 0, 0.05);
+        padding: 4px 8px;
+        border-radius: 4px;
+    }
+
+    /* Copy Button */
+    .copy-btn {
+        background: var(--tg-theme-button-color);
+        color: var(--tg-theme-button-text-color);
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+        opacity: 0.9;
+    }
+
+    .copy-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            grid-template-columns: 1fr;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .steps-container {
+            grid-template-columns: 1fr;
+            padding: 0 20px;
+        }
+
+        .step::after {
+            display: none;
+        }
+
+        .system-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .members-list {
+            grid-template-columns: 1fr;
+        }
+
+        .nav-items {
+            padding: 0 10px;
+        }
+
+        .nav-item {
+            padding: 6px 8px;
+            min-width: 50px;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .membership-nft-card {
+            padding: 20px;
+            margin: 0 10px;
+        }
+
+        .nft-card-details {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .plan-card {
+            padding: 20px;
+        }
+
+        .stat-card {
+            padding: 16px;
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            font-size: 1.5rem;
+        }
+
+        .system-stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .network-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .network-item .value {
+            word-break: break-all;
+        }
+    }
+
+    /* Dark Theme Component Adjustments */
+    [data-theme="dark"] .plan-card {
+        border-color: #333333;
+    }
+
+    [data-theme="dark"] .plan-card.available {
+        box-shadow: 0 4px 20px rgba(139, 180, 217, 0.15);
+    }
+
+    [data-theme="dark"] .stat-card {
+        border-color: #333333;
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+    }
+
+    [data-theme="dark"] .feature-card {
+        border-color: #333333;
+    }
+
+    [data-theme="dark"] .feature-card:hover {
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+    }
+
+    [data-theme="dark"] .help-item {
+        background: #2a2a2a;
+    }
+
+    [data-theme="dark"] .network-info {
+        background: #2a2a2a;
+        border-color: #333333;
+    }
+
+    [data-theme="dark"] .network-item .value {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    [data-theme="dark"] .system-stats {
+        background: #2a2a2a;
+    }
+
+    /* Animation Enhancements */
+    .plan-card {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    .plan-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .plan-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .plan-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .plan-card:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stat-card {
+        animation: slideInLeft 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    .stat-card:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .stat-card:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .stat-card:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .stat-card:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes slideInLeft {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Pulse Animation for Important Elements */
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+    }
+}
