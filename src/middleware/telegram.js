@@ -7,7 +7,6 @@ const crypto = require('crypto');
  */
 function telegramAuth(req, res, next) {
     try {
-        // Get init data from different possible sources
         const initData = req.headers['x-telegram-init-data'] || 
                         req.body.initData || 
                         req.query.initData ||
@@ -18,7 +17,6 @@ function telegramAuth(req, res, next) {
             return next();
         }
 
-        // Parse URL parameters
         const urlParams = new URLSearchParams(initData);
         const hash = urlParams.get('hash');
         
@@ -27,14 +25,12 @@ function telegramAuth(req, res, next) {
             return next();
         }
 
-        // Create data check string (remove hash and sort alphabetically)
         urlParams.delete('hash');
         const dataCheckString = Array.from(urlParams.entries())
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([key, value]) => `${key}=${value}`)
             .join('\n');
 
-        // Verify hash using bot token
         if (!process.env.TELEGRAM_BOT_TOKEN) {
             console.warn('TELEGRAM_BOT_TOKEN not set, skipping validation');
             req.telegramUser = parseUserData(urlParams);
@@ -51,13 +47,11 @@ function telegramAuth(req, res, next) {
             .update(dataCheckString)
             .digest('hex');
 
-        // Verify hash matches
         if (calculatedHash === hash) {
-            // Check auth date (should not be older than 24 hours)
             const authDate = parseInt(urlParams.get('auth_date'));
             const currentTime = Math.floor(Date.now() / 1000);
             
-            if (currentTime - authDate < 86400) { // 24 hours
+            if (currentTime - authDate < 86400) {
                 req.telegramUser = parseUserData(urlParams);
             } else {
                 console.warn('Telegram auth data too old:', currentTime - authDate);
@@ -76,9 +70,6 @@ function telegramAuth(req, res, next) {
     }
 }
 
-/**
- * Parse user data from URL parameters
- */
 function parseUserData(urlParams) {
     try {
         const userParam = urlParams.get('user');
@@ -86,7 +77,6 @@ function parseUserData(urlParams) {
 
         const user = JSON.parse(userParam);
         
-        // Add additional data if available
         const queryId = urlParams.get('query_id');
         const authDate = urlParams.get('auth_date');
         const startParam = urlParams.get('start_param');
@@ -96,7 +86,6 @@ function parseUserData(urlParams) {
             query_id: queryId,
             auth_date: authDate ? parseInt(authDate) : null,
             start_param: startParam,
-            // Add theme parameters if available
             colorScheme: urlParams.get('color_scheme') || 'light',
             bg_color: urlParams.get('bg_color'),
             text_color: urlParams.get('text_color'),
