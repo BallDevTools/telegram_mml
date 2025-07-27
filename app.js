@@ -1,4 +1,7 @@
-// app.js - แก้ไขการ import telegram middleware
+// 1. ติดตั้ง express-ejs-layouts ก่อน
+// npm install express-ejs-layouts
+
+// 2. แก้ไข app.js
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
@@ -7,6 +10,7 @@ const cors = require('cors');
 const compression = require('compression');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const expressLayouts = require('express-ejs-layouts'); // เพิ่ม
 require('dotenv').config();
 
 const app = express();
@@ -46,13 +50,17 @@ app.use(session({
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Layout setup - เพิ่มส่วนนี้
+app.use(expressLayouts);
+app.set('layout', 'layouts/main');
+app.set('layout extractScripts', true);
+app.set('layout extractStyles', true);
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Import telegram middleware - แก้ไขการ import
+// Import telegram middleware
 const { telegramAuth } = require('./src/middleware/telegram');
-
-// Apply telegram middleware
 app.use(telegramAuth);
 
 // Import routes with error handling
@@ -64,11 +72,12 @@ try {
   console.log('📝 Index routes not found, creating fallback...');
   indexRoutes = express.Router();
   indexRoutes.get('/', (req, res) => {
-    res.json({ 
-      message: 'Crypto Membership NFT',
-      status: 'Homepage route not configured yet',
+    res.render('pages/simple-index', {
+      title: 'Crypto Membership NFT',
+      systemStats: { totalMembers: '0' },
+      userMembership: null,
       telegramUser: req.telegramUser,
-      timestamp: new Date().toISOString()
+      user: req.user
     });
   });
 }
@@ -101,7 +110,8 @@ try {
   apiRoutes.get('/health', (req, res) => {
     res.json({ 
       status: 'OK',
-      message: 'API routes not fully configured yet',
+      message: 'API health check',
+      database: 'Connected',
       timestamp: new Date().toISOString()
     });
   });
@@ -113,7 +123,7 @@ app.use('/membership', membershipRoutes);
 app.use('/wallet', walletRoutes);
 app.use('/api', apiRoutes);
 
-// Main health check route
+// Health check route
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
@@ -139,20 +149,38 @@ app.get('/test-telegram', (req, res) => {
 // Error handling
 app.use((err, req, res, next) => {
   console.error('❌ Error:', err.stack);
-  res.status(500).json({ 
-    error: 'Something went wrong!',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error',
-    timestamp: new Date().toISOString()
-  });
+  
+  if (req.xhr || req.headers.accept?.includes('application/json')) {
+    res.status(500).json({ 
+      error: 'Something went wrong!',
+      message: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error',
+      timestamp: new Date().toISOString()
+    });
+  } else {
+    res.status(500).render('error', { 
+      message: 'Something went wrong!',
+      error: process.env.NODE_ENV === 'development' ? err : {},
+      telegramUser: req.telegramUser || null,
+      layout: false // ไม่ใช้ layout สำหรับ error page
+    });
+  }
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({
-    error: 'Not Found',
-    message: `Route ${req.method} ${req.path} not found`,
-    timestamp: new Date().toISOString()
-  });
+  if (req.xhr || req.headers.accept?.includes('application/json')) {
+    res.status(404).json({
+      error: 'Not Found',
+      message: `Route ${req.method} ${req.path} not found`,
+      timestamp: new Date().toISOString()
+    });
+  } else {
+    res.status(404).render('404', {
+      url: req.originalUrl,
+      telegramUser: req.telegramUser || null,
+      layout: false // ไม่ใช้ layout สำหรับ 404 page
+    });
+  }
 });
 
 // Connect to database

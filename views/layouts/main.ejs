@@ -1,10 +1,10 @@
 <!-- views/layouts/main.ejs -->
 <!DOCTYPE html>
-<html lang="en" data-theme="<%= telegramUser?.colorScheme || 'light' %>">
+<html lang="en" data-theme="<%= (typeof telegramUser !== 'undefined' && telegramUser?.colorScheme) || 'light' %>">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> - Crypto Membership</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title><%= title || 'Crypto Membership NFT' %></title>
     
     <!-- Telegram Web App CSS -->
     <link rel="stylesheet" href="/css/telegram.css">
@@ -17,23 +17,89 @@
     
     <style>
         :root {
-            --tg-theme-bg-color: <%= telegramUser?.bg_color || '#ffffff' %>;
-            --tg-theme-text-color: <%= telegramUser?.text_color || '#000000' %>;
-            --tg-theme-hint-color: <%= telegramUser?.hint_color || '#999999' %>;
-            --tg-theme-link-color: <%= telegramUser?.link_color || '#2481cc' %>;
-            --tg-theme-button-color: <%= telegramUser?.button_color || '#2481cc' %>;
-            --tg-theme-button-text-color: <%= telegramUser?.button_text_color || '#ffffff' %>;
+            --tg-theme-bg-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.bg_color) || '#ffffff' %>;
+            --tg-theme-text-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.text_color) || '#000000' %>;
+            --tg-theme-hint-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.hint_color) || '#999999' %>;
+            --tg-theme-link-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.link_color) || '#2481cc' %>;
+            --tg-theme-button-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.button_color) || '#2481cc' %>;
+            --tg-theme-button-text-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.button_text_color) || '#ffffff' %>;
+            --tg-theme-secondary-bg-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.secondary_bg_color) || '#f1f1f1' %>;
+        }
+        
+        body {
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .telegram-app {
+            min-height: 100vh;
+            background-color: var(--tg-theme-bg-color);
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 80px);
+            padding-bottom: 80px;
+        }
+        
+        /* Loading styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--tg-theme-bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--tg-theme-hint-color);
+            border-top: 3px solid var(--tg-theme-button-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
+    
+    <!-- Extract styles from pages -->
+    <%- style %>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
     <div id="app" class="telegram-app">
+        <!-- Header -->
         <%- include('../partials/header') %>
         
+        <!-- Main Content -->
         <main class="main-content">
             <%- body %>
         </main>
         
+        <!-- Bottom Navigation -->
         <%- include('../partials/navbar') %>
     </div>
 
@@ -43,19 +109,65 @@
     <script src="/js/wallet.js"></script>
     <script src="/js/app.js"></script>
     
+    <!-- Extract scripts from pages -->
+    <%- script %>
+    
     <script>
         // Initialize Telegram Web App
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            
+            // Set main button theme
+            window.Telegram.WebApp.MainButton.setParams({
+                color: '<%= (typeof telegramUser !== 'undefined' && telegramUser?.button_color) || '#2481cc' %>',
+                text_color: '<%= (typeof telegramUser !== 'undefined' && telegramUser?.button_text_color) || '#ffffff' %>'
+            });
+        }
         
         // Pass server data to client
         window.APP_DATA = {
-            user: <%- JSON.stringify(user || null) %>,
-            telegramUser: <%- JSON.stringify(telegramUser || null) %>,
-            contractAddress: '<%= process.env.CONTRACT_ADDRESS %>',
-            chainId: '<%= process.env.CHAIN_ID %>',
-            rpcUrl: '<%= process.env.RPC_URL %>'
+            user: <%- JSON.stringify((typeof user !== 'undefined' && user) || null) %>,
+            telegramUser: <%- JSON.stringify((typeof telegramUser !== 'undefined' && telegramUser) || null) %>,
+            contractAddress: '<%= process.env.CONTRACT_ADDRESS || '' %>',
+            chainId: '<%= process.env.CHAIN_ID || '56' %>',
+            rpcUrl: '<%= process.env.RPC_URL || '' %>',
+            usdtAddress: '<%= process.env.USDT_CONTRACT_ADDRESS || '' %>'
         };
+        
+        // Hide loading overlay when page is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                }
+            }, 500);
+        });
+        
+        // Error handling
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.showAlert('An error occurred. Please try again.');
+            }
+        });
+        
+        // Prevent zoom on mobile
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(e) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>

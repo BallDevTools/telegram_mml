@@ -1,0 +1,158 @@
+<!-- views/partials/header.ejs -->
+<header class="app-header">
+    <div class="header-content">
+        <div class="header-left">
+            <a href="/" class="logo">
+                <span class="logo-icon">🚀</span>
+                <span class="logo-text">CryptoMML</span>
+            </a>
+        </div>
+        
+        <div class="header-center">
+            <% if (typeof title !== 'undefined' && title) { %>
+                <h1 class="page-title"><%= title %></h1>
+            <% } %>
+        </div>
+        
+        <div class="header-right">
+            <% if (typeof telegramUser !== 'undefined' && telegramUser) { %>
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <%= telegramUser.first_name.charAt(0).toUpperCase() %>
+                    </div>
+                    <span class="user-name"><%= telegramUser.first_name %></span>
+                </div>
+            <% } else { %>
+                <div class="connect-prompt">
+                    <span class="connect-icon">🔗</span>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</header>
+
+<style>
+.app-header {
+    background: var(--tg-theme-bg-color);
+    border-bottom: 1px solid var(--tg-theme-hint-color);
+    padding: 10px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-left {
+    flex: 1;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--tg-theme-text-color);
+    font-weight: 600;
+}
+
+.logo-icon {
+    font-size: 1.5rem;
+}
+
+.logo-text {
+    font-size: 1.1rem;
+}
+
+.header-center {
+    flex: 2;
+    text-align: center;
+}
+
+.page-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--tg-theme-text-color);
+}
+
+.header-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.user-name {
+    font-size: 0.9rem;
+    color: var(--tg-theme-text-color);
+    font-weight: 500;
+}
+
+.connect-prompt {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.connect-icon {
+    font-size: 1.2rem;
+    opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        padding: 0 16px;
+    }
+    
+    .logo-text {
+        display: none;
+    }
+    
+    .page-title {
+        font-size: 1rem;
+    }
+    
+    .user-name {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content {
+        padding: 0 12px;
+    }
+    
+    .page-title {
+        font-size: 0.9rem;
+    }
+}
+</style>
