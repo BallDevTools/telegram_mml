@@ -1,0 +1,168 @@
+<!-- views/components/membership-card.ejs -->
+<div class="membership-nft-card" data-plan-id="<%= membership.planId %>">
+    <div class="nft-card-header">
+        <div class="nft-card-level">Level <%= membership.planId %></div>
+        <div class="nft-card-title"><%= membership.planName %></div>
+    </div>
+    
+    <div class="nft-card-image">
+        <div class="nft-visual">
+            <% if (membership.planId <= 4) { %>
+                <div class="tier-starter">🌟</div>
+            <% } else if (membership.planId <= 8) { %>
+                <div class="tier-premium">💎</div>
+            <% } else if (membership.planId <= 12) { %>
+                <div class="tier-elite">👑</div>
+            <% } else { %>
+                <div class="tier-infinity">🔥</div>
+            <% } %>
+        </div>
+        
+        <div class="nft-gradient tier-<%= Math.ceil(membership.planId / 4) %>"></div>
+    </div>
+    
+    <div class="nft-card-details">
+        <div class="nft-detail">
+            <span class="label">Token ID</span>
+            <span class="value">#<%= membership.tokenId || 'Pending' %></span>
+        </div>
+        
+        <div class="nft-detail">
+            <span class="label">Cycle</span>
+            <span class="value">#<%= membership.cycleNumber %></span>
+        </div>
+        
+        <div class="nft-detail">
+            <span class="label">Joined</span>
+            <span class="value"><%= new Date(membership.registeredAt).toLocaleDateString() %></span>
+        </div>
+        
+        <div class="nft-detail">
+            <span class="label">Status</span>
+            <span class="value status-active">Active</span>
+        </div>
+    </div>
+    
+    <div class="nft-card-footer">
+        <div class="non-transferable-badge">
+            🔒 Non-Transferable
+        </div>
+    </div>
+</div>
+
+<style>
+.membership-nft-card {
+    max-width: 350px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    padding: 24px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.membership-nft-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    pointer-events: none;
+}
+
+.nft-card-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.nft-card-level {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.nft-card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.nft-card-image {
+    position: relative;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.nft-visual {
+    font-size: 4rem;
+    z-index: 2;
+    position: relative;
+}
+
+.nft-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 12px;
+    opacity: 0.3;
+}
+
+.nft-gradient.tier-1 {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+}
+
+.nft-gradient.tier-2 {
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+}
+
+.nft-gradient.tier-3 {
+    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+}
+
+.nft-gradient.tier-4 {
+    background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+}
+
+.nft-card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.nft-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.nft-detail .label {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.nft-detail .value {
+    font-weight: bold;
+}
+
+.status-active {
+    color: #00b894;
+}
+
+.non-transferable-badge {
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+}
+</style>

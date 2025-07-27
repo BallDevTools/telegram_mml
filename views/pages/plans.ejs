@@ -1,0 +1,308 @@
+<!-- views/pages/plans.ejs -->
+<% layout('layouts/main') -%>
+
+<div class="plans-container">
+    <div class="plans-header">
+        <h1>🚀 Choose Your Plan</h1>
+        <p>Select a membership plan to get started</p>
+        
+        <% if (userMembership) { %>
+            <div class="current-plan-badge">
+                <span>Current Plan: <strong><%= userMembership.planName %></strong></span>
+            </div>
+        <% } %>
+    </div>
+
+    <div class="plans-grid">
+        <% plans.forEach((plan, index) => { %>
+            <% 
+                const isOwned = userMembership && userMembership.planId >= plan.id;
+                const isAvailable = !userMembership || plan.id === userMembership.planId + 1 || plan.id === 1;
+                const isLocked = !isAvailable && !isOwned;
+            %>
+            
+            <div class="plan-card <%= isOwned ? 'owned' : '' %> <%= isAvailable ? 'available' : '' %> <%= isLocked ? 'locked' : '' %>"
+                 data-plan-id="<%= plan.id %>">
+                
+                <div class="plan-header">
+                    <div class="plan-icon">
+                        <% if (plan.id <= 4) { %>🌟
+                        <% } else if (plan.id <= 8) { %>💎
+                        <% } else if (plan.id <= 12) { %>👑
+                        <% } else { %>🔥<% } %>
+                    </div>
+                    <h3><%= plan.name %></h3>
+                    <span class="plan-level">Level <%= plan.id %></span>
+                </div>
+
+                <div class="plan-price">
+                    <span class="amount"><%= plan.priceUSDT %></span>
+                    <span class="currency">USDT</span>
+                </div>
+
+                <div class="plan-stats">
+                    <div class="stat">
+                        <span class="label">Members per Cycle</span>
+                        <span class="value"><%= plan.membersPerCycle %></span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Current Cycle</span>
+                        <span class="value">#<%= plan.currentCycle %></span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Members in Cycle</span>
+                        <span class="value"><%= plan.membersInCurrentCycle %>/<%= plan.membersPerCycle %></span>
+                    </div>
+                </div>
+
+                <div class="plan-benefits">
+                    <div class="benefit">✓ NFT Membership Card</div>
+                    <div class="benefit">✓ Referral Commissions</div>
+                    <div class="benefit">✓ Upgrade Path Available</div>
+                    <% if (plan.id > 12) { %>
+                        <div class="benefit premium">✓ Premium Cycle Rewards</div>
+                    <% } %>
+                </div>
+
+                <% if (isOwned) { %>
+                    <button class="plan-button owned" disabled>
+                        <span>✓ Owned</span>
+                    </button>
+                <% } else if (isAvailable) { %>
+                    <button class="plan-button available" onclick="selectPlan(<%= plan.id %>)">
+                        <% if (userMembership && plan.id > userMembership.planId) { %>
+                            Upgrade Now
+                        <% } else { %>
+                            Select Plan
+                        <% } %>
+                    </button>
+                <% } else { %>
+                    <button class="plan-button locked" disabled>
+                        <span>🔒 Locked</span>
+                    </button>
+                <% } %>
+            </div>
+        <% }); %>
+    </div>
+</div>
+
+<!-- Plan Selection Modal -->
+<div id="planModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Plan Selection</h3>
+            <span class="close" onclick="closePlanModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="planDetails"></div>
+            <div class="wallet-section">
+                <button id="connectWalletBtn" onclick="connectWallet()">
+                    Connect Wallet
+                </button>
+                <div id="walletConnected" style="display: none;">
+                    <span>Wallet: <span id="walletAddress"></span></span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="proceedBtn" onclick="proceedWithPlan()" disabled>
+                Proceed to Payment
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.plan-card {
+    background: var(--tg-theme-bg-color);
+    border: 2px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.plan-card.available {
+    border-color: var(--tg-theme-button-color);
+    box-shadow: 0 4px 12px rgba(36, 129, 204, 0.1);
+}
+
+.plan-card.owned {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.plan-card.locked {
+    opacity: 0.6;
+    border-color: #dee2e6;
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.plan-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.plan-price {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.plan-price .amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--tg-theme-button-color);
+}
+
+.plan-button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.plan-button.available {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.plan-button.owned {
+    background: #28a745;
+    color: white;
+}
+
+.plan-button.locked {
+    background: #dee2e6;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: var(--tg-theme-bg-color);
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+}
+</style>
+
+<script>
+let selectedPlan = null;
+let walletConnected = false;
+
+function selectPlan(planId) {
+    selectedPlan = planId;
+    showPlanModal(planId);
+}
+
+function showPlanModal(planId) {
+    const modal = document.getElementById('planModal');
+    const plan = window.APP_DATA.plans?.find(p => p.id === planId);
+    
+    if (plan) {
+        document.getElementById('planDetails').innerHTML = `
+            <div class="selected-plan">
+                <h4>${plan.name} Plan</h4>
+                <p>Price: ${plan.priceUSDT} USDT</p>
+                <p>Level: ${plan.id}</p>
+            </div>
+        `;
+    }
+    
+    modal.style.display = 'block';
+    checkWalletConnection();
+}
+
+function closePlanModal() {
+    document.getElementById('planModal').style.display = 'none';
+    selectedPlan = null;
+}
+
+async function connectWallet() {
+    try {
+        if (typeof window.ethereum !== 'undefined') {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            if (accounts.length > 0) {
+                walletConnected = true;
+                updateWalletUI(accounts[0]);
+            }
+        } else {
+            // Show WalletConnect or mobile wallet options
+            showMobileWalletOptions();
+        }
+    } catch (error) {
+        console.error('Error connecting wallet:', error);
+        window.Telegram.WebApp.showAlert('Error connecting wallet');
+    }
+}
+
+function updateWalletUI(address) {
+    document.getElementById('connectWalletBtn').style.display = 'none';
+    document.getElementById('walletConnected').style.display = 'block';
+    document.getElementById('walletAddress').textContent = address.substring(0, 6) + '...' + address.substring(38);
+    document.getElementById('proceedBtn').disabled = false;
+}
+
+function checkWalletConnection() {
+    if (window.ethereum && window.ethereum.selectedAddress) {
+        walletConnected = true;
+        updateWalletUI(window.ethereum.selectedAddress);
+    }
+}
+
+async function proceedWithPlan() {
+    if (!selectedPlan || !walletConnected) return;
+    
+    try {
+        // Show loading
+        window.Telegram.WebApp.showAlert('Preparing transaction...');
+        
+        // Call smart contract function
+        await registerOrUpgradeMembership(selectedPlan);
+        
+    } catch (error) {
+        console.error('Error proceeding with plan:', error);
+        window.Telegram.WebApp.showAlert('Transaction failed. Please try again.');
+    }
+}
+
+function showMobileWalletOptions() {
+    const options = `
+        <div class="wallet-options">
+            <button onclick="connectWalletConnect()">WalletConnect</button>
+            <button onclick="connectMetaMaskMobile()">MetaMask Mobile</button>
+            <button onclick="connectTrustWallet()">Trust Wallet</button>
+        </div>
+    `;
+    document.getElementById('walletConnected').innerHTML = options;
+    document.getElementById('walletConnected').style.display = 'block';
+}
+</script>

@@ -1,0 +1,61 @@
+<!-- views/layouts/main.ejs -->
+<!DOCTYPE html>
+<html lang="en" data-theme="<%= telegramUser?.colorScheme || 'light' %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Crypto Membership</title>
+    
+    <!-- Telegram Web App CSS -->
+    <link rel="stylesheet" href="/css/telegram.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/components.css">
+    
+    <!-- Web3 Libraries -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        :root {
+            --tg-theme-bg-color: <%= telegramUser?.bg_color || '#ffffff' %>;
+            --tg-theme-text-color: <%= telegramUser?.text_color || '#000000' %>;
+            --tg-theme-hint-color: <%= telegramUser?.hint_color || '#999999' %>;
+            --tg-theme-link-color: <%= telegramUser?.link_color || '#2481cc' %>;
+            --tg-theme-button-color: <%= telegramUser?.button_color || '#2481cc' %>;
+            --tg-theme-button-text-color: <%= telegramUser?.button_text_color || '#ffffff' %>;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="telegram-app">
+        <%- include('../partials/header') %>
+        
+        <main class="main-content">
+            <%- body %>
+        </main>
+        
+        <%- include('../partials/navbar') %>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/telegram.js"></script>
+    <script src="/js/web3.js"></script>
+    <script src="/js/wallet.js"></script>
+    <script src="/js/app.js"></script>
+    
+    <script>
+        // Initialize Telegram Web App
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+        
+        // Pass server data to client
+        window.APP_DATA = {
+            user: <%- JSON.stringify(user || null) %>,
+            telegramUser: <%- JSON.stringify(telegramUser || null) %>,
+            contractAddress: '<%= process.env.CONTRACT_ADDRESS %>',
+            chainId: '<%= process.env.CHAIN_ID %>',
+            rpcUrl: '<%= process.env.RPC_URL %>'
+        };
+    </script>
+</body>
+</html>
