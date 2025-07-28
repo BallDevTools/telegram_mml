@@ -32,16 +32,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Session configuration
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'crypto-membership-secret',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000
-    }
-}));
+const createSessionConfig = require('./src/config/session');
+app.use(session(createSessionConfig()));
 
 // View engine setup
 app.set('view engine', 'ejs');

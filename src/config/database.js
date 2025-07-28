@@ -1,11 +1,22 @@
-// src/config/database.js - แก้ไข connection
+// src/config/database.js - เพิ่ม fallback mechanism
+
 const mongoose = require('mongoose');
 
+let isConnected = false;
+let connectionAttempts = 0;
+const MAX_RETRY_ATTEMPTS = 5;
+const RETRY_DELAY = 5000; // 5 seconds
+
 const connectDB = async () => {
+    if (isConnected) {
+        console.log('📊 Database already connected');
+        return;
+    }
+
     try {
-        console.log('🔌 Connecting to MongoDB...');
+        connectionAttempts++;
+        console.log(`🔌 Connecting to MongoDB... (Attempt ${connectionAttempts}/${MAX_RETRY_ATTEMPTS})`);
         
-        // ซ่อน password ใน log
         const uriForLog = process.env.MONGODB_URI 
             ? process.env.MONGODB_URI.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@')
             : 'URI not configured';
@@ -19,10 +30,15 @@ const connectDB = async () => {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             maxPoolSize: 10,
-            serverSelectionTimeoutMS: 5000,
+            serverSelectionTimeoutMS: 10000, // เพิ่มเวลา timeout
             socketTimeoutMS: 45000,
-            family: 4
+            family: 4,
+            retryWrites: true,
+            retryReads: true
         });
+
+        isConnected = true;
+        connectionAttempts = 0; // reset on successful connection
 
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
         console.log(`📊 Database: ${conn.connection.name}`);
@@ -30,14 +46,24 @@ const connectDB = async () => {
         // Handle connection events
         mongoose.connection.on('error', (err) => {
             console.error('❌ MongoDB connection error:', err);
+            isConnected = false;
         });
 
         mongoose.connection.on('disconnected', () => {
             console.warn('⚠️  MongoDB disconnected');
+            isConnected = false;
+            
+            // Auto-reconnect
+            setTimeout(() => {
+                if (!isConnected && connectionAttempts < MAX_RETRY_ATTEMPTS) {
+                    connectDB();
+                }
+            }, RETRY_DELAY);
         });
 
         mongoose.connection.on('reconnected', () => {
             console.log('🔄 MongoDB reconnected');
+            isConnected = true;
         });
 
         // Graceful shutdown
@@ -50,18 +76,40 @@ const connectDB = async () => {
 
     } catch (error) {
         console.error('❌ Database connection failed:', error.message);
+        isConnected = false;
         
         // แสดง error details เฉพาะใน development
         if (process.env.NODE_ENV === 'development') {
             console.error('Error details:', error);
         }
         
-        // ไม่ exit process ให้ app รันต่อได้
-        console.log('⚠️  Continuing without database connection...');
+        // Retry connection
+        if (connectionAttempts < MAX_RETRY_ATTEMPTS) {
+            console.log(`🔄 Retrying connection in ${RETRY_DELAY/1000} seconds...`);
+            setTimeout(() => {
+                connectDB();
+            }, RETRY_DELAY);
+        } else {
+            console.log('⚠️  Max connection attempts reached. Continuing without database...');
+            console.log('💡 Tips to fix:');
+            console.log('   1. Check your IP whitelist in MongoDB Atlas');
+            console.log('   2. Verify MONGODB_URI in .env file');
+            console.log('   3. Check network connectivity');
+        }
+    }
+};
+
+// Export connection status checker
+const isDatabaseConnected = () => isConnected;
+
+// Export connection function
+const reconnectDatabase = async () => {
+    if (!isConnected && connectionAttempts < MAX_RETRY_ATTEMPTS) {
+        await connectDB();
     }
 };
 
 // เรียกใช้ connectDB
 connectDB();
 
-module.exports = connectDB;
+module.exports = { connectDB, isDatabaseConnected, reconnectDatabase };
