@@ -1,0 +1,651 @@
+<!-- views/layouts/telegram.ejs - Telegram-specific layout -->
+<!DOCTYPE html>
+<html lang="en" data-theme="<%= (typeof telegramUser !== 'undefined' && telegramUser?.colorScheme) || 'light' %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title><%= title || 'Crypto Membership NFT' %></title>
+    
+    <!-- Telegram Web App Meta -->
+    <meta name="telegram-web-app" content="app">
+    <meta name="theme-color" content="<%= (typeof telegramUser !== 'undefined' && telegramUser?.button_color) || '#2481cc' %>">
+    
+    <!-- PWA Meta -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CryptoMML">
+    
+    <!-- Telegram Web App CSS -->
+    <link rel="stylesheet" href="/css/telegram.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/components.css">
+    
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Web3 Libraries -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --tg-theme-bg-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.bg_color) || '#ffffff' %>;
+            --tg-theme-text-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.text_color) || '#000000' %>;
+            --tg-theme-hint-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.hint_color) || '#999999' %>;
+            --tg-theme-link-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.link_color) || '#2481cc' %>;
+            --tg-theme-button-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.button_color) || '#2481cc' %>;
+            --tg-theme-button-text-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.button_text_color) || '#ffffff' %>;
+            --tg-theme-secondary-bg-color: <%= (typeof telegramUser !== 'undefined' && telegramUser?.secondary_bg_color) || '#f1f1f1' %>;
+            
+            /* Telegram safe areas */
+            --tg-viewport-height: 100vh;
+            --tg-viewport-stable-height: 100vh;
+        }
+        
+        /* Telegram Web App specific styles */
+        body {
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            
+            /* Handle viewport changes */
+            height: var(--tg-viewport-height);
+            min-height: var(--tg-viewport-stable-height);
+        }
+        
+        .telegram-webapp {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: var(--tg-theme-bg-color);
+        }
+        
+        /* Safe area handling */
+        .safe-area-top {
+            padding-top: env(safe-area-inset-top);
+        }
+        
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .safe-area-left {
+            padding-left: env(safe-area-inset-left);
+        }
+        
+        .safe-area-right {
+            padding-right: env(safe-area-inset-right);
+        }
+        
+        /* Telegram header area (if back button is shown) */
+        .telegram-header {
+            height: 0;
+            transition: height 0.3s ease;
+        }
+        
+        .telegram-header.visible {
+            height: 50px;
+        }
+        
+        /* Main content area */
+        .telegram-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+        }
+        
+        /* Telegram main button area */
+        .telegram-main-button-area {
+            height: 0;
+            transition: height 0.3s ease;
+        }
+        
+        .telegram-main-button-area.visible {
+            height: 68px;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        /* Loading overlay for Telegram */
+        .telegram-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--tg-theme-bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .telegram-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .telegram-loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--tg-theme-hint-color);
+            border-top: 3px solid var(--tg-theme-button-color);
+            border-radius: 50%;
+            animation: tg-spin 1s linear infinite;
+        }
+        
+        @keyframes tg-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Haptic feedback animation */
+        .haptic-light {
+            animation: haptic-light 0.1s ease-in-out;
+        }
+        
+        .haptic-medium {
+            animation: haptic-medium 0.15s ease-in-out;
+        }
+        
+        .haptic-heavy {
+            animation: haptic-heavy 0.2s ease-in-out;
+        }
+        
+        @keyframes haptic-light {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.98); }
+        }
+        
+        @keyframes haptic-medium {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+        }
+        
+        @keyframes haptic-heavy {
+            0%, 100% { transform: scale(1); }
+            25%, 75% { transform: scale(0.92); }
+            50% { transform: scale(0.96); }
+        }
+        
+        /* Telegram theme transitions */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        /* Hide scrollbars on mobile */
+        .telegram-content::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .telegram-content {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Telegram button styles */
+        .tg-button {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            min-height: 44px; /* Touch target */
+        }
+        
+        .tg-button:hover {
+            opacity: 0.9;
+        }
+        
+        .tg-button:active {
+            transform: scale(0.98);
+        }
+        
+        .tg-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Telegram secondary button */
+        .tg-button-secondary {
+            background: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-text-color);
+            border: 1px solid var(--tg-theme-hint-color);
+        }
+        
+        /* Responsive adjustments for Telegram */
+        @media (max-width: 480px) {
+            .telegram-content {
+                padding: 0 12px;
+            }
+        }
+        
+        /* Dark theme specific adjustments */
+        [data-theme="dark"] {
+            --tg-theme-bg-color: #212121;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-hint-color: #aaaaaa;
+            --tg-theme-secondary-bg-color: #181818;
+        }
+        
+        /* Extract page-specific styles */
+        <%- typeof styles !== 'undefined' ? styles : '' %>
+    </style>
+    
+    <!-- Extract styles from pages -->
+    <%- style %>
+</head>
+<body>
+    <!-- Telegram Loading Overlay -->
+    <div class="telegram-loading" id="telegramLoading">
+        <div class="telegram-loading-spinner"></div>
+    </div>
+
+    <!-- Telegram Web App Container -->
+    <div class="telegram-webapp" id="telegramApp">
+        <!-- Telegram Header (for back button) -->
+        <div class="telegram-header" id="telegramHeader"></div>
+        
+        <!-- Main Content -->
+        <div class="telegram-content safe-area-top safe-area-bottom" id="telegramContent">
+            <%- body %>
+        </div>
+        
+        <!-- Telegram Main Button Area -->
+        <div class="telegram-main-button-area" id="telegramMainButtonArea"></div>
+    </div>
+
+    <!-- Telegram Web App Scripts -->
+    <script src="/js/telegram.js"></script>
+    <script src="/js/web3.js"></script>
+    <script src="/js/wallet.js"></script>
+    <script src="/js/app.js"></script>
+    
+    <!-- Extract scripts from pages -->
+    <%- script %>
+    
+    <script>
+        // Telegram Web App initialization
+        class TelegramWebApp {
+            constructor() {
+                this.webApp = window.Telegram?.WebApp;
+                this.isReady = false;
+                this.viewportHeight = window.innerHeight;
+                
+                this.init();
+            }
+            
+            init() {
+                if (!this.webApp) {
+                    console.warn('Telegram WebApp not available');
+                    this.fallbackInit();
+                    return;
+                }
+                
+                // Initialize Telegram WebApp
+                this.webApp.ready();
+                this.webApp.expand();
+                
+                // Set theme
+                this.applyTheme();
+                
+                // Setup viewport
+                this.setupViewport();
+                
+                // Setup events
+                this.setupEvents();
+                
+                // Setup UI
+                this.setupUI();
+                
+                this.isReady = true;
+                console.log('📱 Telegram WebApp initialized');
+                
+                // Hide loading
+                this.hideLoading();
+            }
+            
+            fallbackInit() {
+                // Fallback for non-Telegram environments
+                console.log('🌐 Running in fallback mode (non-Telegram)');
+                this.hideLoading();
+            }
+            
+            applyTheme() {
+                if (!this.webApp) return;
+                
+                const theme = this.webApp.colorScheme || 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+                
+                // Apply Telegram theme colors
+                if (this.webApp.themeParams) {
+                    const root = document.documentElement.style;
+                    root.setProperty('--tg-theme-bg-color', this.webApp.themeParams.bg_color || '#ffffff');
+                    root.setProperty('--tg-theme-text-color', this.webApp.themeParams.text_color || '#000000');
+                    root.setProperty('--tg-theme-hint-color', this.webApp.themeParams.hint_color || '#999999');
+                    root.setProperty('--tg-theme-link-color', this.webApp.themeParams.link_color || '#2481cc');
+                    root.setProperty('--tg-theme-button-color', this.webApp.themeParams.button_color || '#2481cc');
+                    root.setProperty('--tg-theme-button-text-color', this.webApp.themeParams.button_text_color || '#ffffff');
+                    root.setProperty('--tg-theme-secondary-bg-color', this.webApp.themeParams.secondary_bg_color || '#f1f1f1');
+                }
+            }
+            
+            setupViewport() {
+                if (!this.webApp) return;
+                
+                // Handle viewport changes
+                this.webApp.onEvent('viewportChanged', (eventData) => {
+                    this.handleViewportChange(eventData);
+                });
+                
+                // Set initial viewport
+                this.handleViewportChange({
+                    height: this.webApp.viewportHeight,
+                    is_expanded: this.webApp.isExpanded,
+                    is_state_stable: true
+                });
+            }
+            
+            handleViewportChange(eventData) {
+                const root = document.documentElement.style;
+                root.setProperty('--tg-viewport-height', `${eventData.height}px`);
+                
+                if (eventData.is_state_stable) {
+                    root.setProperty('--tg-viewport-stable-height', `${eventData.height}px`);
+                }
+                
+                // Adjust content area
+                const content = document.getElementById('telegramContent');
+                if (content) {
+                    content.style.height = `${eventData.height}px`;
+                }
+            }
+            
+            setupEvents() {
+                if (!this.webApp) return;
+                
+                // Theme change
+                this.webApp.onEvent('themeChanged', () => {
+                    this.applyTheme();
+                });
+                
+                // Main button
+                this.webApp.onEvent('mainButtonClicked', () => {
+                    this.handleMainButtonClick();
+                });
+                
+                // Back button
+                this.webApp.onEvent('backButtonClicked', () => {
+                    this.handleBackButtonClick();
+                });
+                
+                // Settings button
+                this.webApp.onEvent('settingsButtonClicked', () => {
+                    this.handleSettingsButtonClick();
+                });
+            }
+            
+            setupUI() {
+                if (!this.webApp) return;
+                
+                // Setup main button
+                this.webApp.MainButton.setParams({
+                    text: 'Continue',
+                    color: this.webApp.themeParams?.button_color || '#2481cc',
+                    text_color: this.webApp.themeParams?.button_text_color || '#ffffff'
+                });
+                
+                // Show back button if needed
+                if (window.location.pathname !== '/') {
+                    this.showBackButton();
+                }
+            }
+            
+            // UI Control Methods
+            showMainButton(text, onClick) {
+                if (!this.webApp) return;
+                
+                this.webApp.MainButton.setText(text);
+                this.webApp.MainButton.show();
+                this.mainButtonCallback = onClick;
+                
+                // Update layout
+                const area = document.getElementById('telegramMainButtonArea');
+                if (area) area.classList.add('visible');
+            }
+            
+            hideMainButton() {
+                if (!this.webApp) return;
+                
+                this.webApp.MainButton.hide();
+                this.mainButtonCallback = null;
+                
+                // Update layout
+                const area = document.getElementById('telegramMainButtonArea');
+                if (area) area.classList.remove('visible');
+            }
+            
+            showBackButton() {
+                if (!this.webApp) return;
+                
+                this.webApp.BackButton.show();
+                
+                // Update layout
+                const header = document.getElementById('telegramHeader');
+                if (header) header.classList.add('visible');
+            }
+            
+            hideBackButton() {
+                if (!this.webApp) return;
+                
+                this.webApp.BackButton.hide();
+                
+                // Update layout
+                const header = document.getElementById('telegramHeader');
+                if (header) header.classList.remove('visible');
+            }
+            
+            // Event Handlers
+            handleMainButtonClick() {
+                if (this.mainButtonCallback) {
+                    this.mainButtonCallback();
+                }
+            }
+            
+            handleBackButtonClick() {
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.location.href = '/';
+                }
+            }
+            
+            handleSettingsButtonClick() {
+                // Handle settings if needed
+                console.log('Settings button clicked');
+            }
+            
+            // Utility Methods
+            showAlert(message) {
+                if (this.webApp) {
+                    this.webApp.showAlert(message);
+                } else {
+                    alert(message);
+                }
+            }
+            
+            showConfirm(message, callback) {
+                if (this.webApp) {
+                    this.webApp.showConfirm(message, callback);
+                } else {
+                    const result = confirm(message);
+                    callback(result);
+                }
+            }
+            
+            hapticFeedback(type = 'light') {
+                if (this.webApp?.HapticFeedback) {
+                    switch (type) {
+                        case 'light':
+                            this.webApp.HapticFeedback.impactOccurred('light');
+                            break;
+                        case 'medium':
+                            this.webApp.HapticFeedback.impactOccurred('medium');
+                            break;
+                        case 'heavy':
+                            this.webApp.HapticFeedback.impactOccurred('heavy');
+                            break;
+                        case 'error':
+                            this.webApp.HapticFeedback.notificationOccurred('error');
+                            break;
+                        case 'success':
+                            this.webApp.HapticFeedback.notificationOccurred('success');
+                            break;
+                        case 'warning':
+                            this.webApp.HapticFeedback.notificationOccurred('warning');
+                            break;
+                    }
+                } else {
+                    // Visual feedback fallback
+                    this.visualHapticFeedback(type);
+                }
+            }
+            
+            visualHapticFeedback(type) {
+                document.body.classList.add(`haptic-${type}`);
+                setTimeout(() => {
+                    document.body.classList.remove(`haptic-${type}`);
+                }, type === 'heavy' ? 200 : type === 'medium' ? 150 : 100);
+            }
+            
+            openLink(url, options = {}) {
+                if (this.webApp) {
+                    this.webApp.openLink(url, options);
+                } else {
+                    window.open(url, '_blank');
+                }
+            }
+            
+            close() {
+                if (this.webApp) {
+                    this.webApp.close();
+                } else {
+                    window.close();
+                }
+            }
+            
+            hideLoading() {
+                const loading = document.getElementById('telegramLoading');
+                if (loading) {
+                    loading.classList.add('hidden');
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                    }, 300);
+                }
+            }
+            
+            sendData(data) {
+                if (this.webApp) {
+                    this.webApp.sendData(JSON.stringify(data));
+                }
+            }
+        }
+        
+        // Initialize Telegram WebApp
+        window.telegramWebApp = new TelegramWebApp();
+        
+        // Pass server data to client
+        window.APP_DATA = {
+            user: <%- JSON.stringify((typeof user !== 'undefined' && user) || null) %>,
+            telegramUser: <%- JSON.stringify((typeof telegramUser !== 'undefined' && telegramUser) || null) %>,
+            contractAddress: '<%= process.env.CONTRACT_ADDRESS || '' %>',
+            chainId: '<%= process.env.CHAIN_ID || '56' %>',
+            rpcUrl: '<%= process.env.RPC_URL || '' %>',
+            usdtAddress: '<%= process.env.USDT_CONTRACT_ADDRESS || '' %>',
+            appUrl: '<%= process.env.APP_URL || '' %>',
+            botUsername: '<%= process.env.TELEGRAM_BOT_USERNAME || '' %>'
+        };
+        
+        // Global helper functions for Telegram
+        window.showTelegramAlert = (message) => {
+            window.telegramWebApp.showAlert(message);
+        };
+        
+        window.showTelegramConfirm = (message, callback) => {
+            window.telegramWebApp.showConfirm(message, callback);
+        };
+        
+        window.triggerHaptic = (type) => {
+            window.telegramWebApp.hapticFeedback(type);
+        };
+        
+        window.showMainButton = (text, onClick) => {
+            window.telegramWebApp.showMainButton(text, onClick);
+        };
+        
+        window.hideMainButton = () => {
+            window.telegramWebApp.hideMainButton();
+        };
+        
+        // Add haptic feedback to all clickable elements
+        document.addEventListener('DOMContentLoaded', () => {
+            const clickableElements = document.querySelectorAll('button, .btn, .tg-button, .nav-item, .plan-card, .wallet-option');
+            
+            clickableElements.forEach(element => {
+                element.addEventListener('click', () => {
+                    window.triggerHaptic('light');
+                });
+            });
+        });
+        
+        // Handle page navigation
+        window.addEventListener('popstate', () => {
+            if (window.location.pathname === '/') {
+                window.telegramWebApp.hideBackButton();
+            } else {
+                window.telegramWebApp.showBackButton();
+            }
+        });
+        
+        // Error handling
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            if (window.telegramWebApp.isReady) {
+                window.telegramWebApp.showAlert('An error occurred. Please try again.');
+            }
+        });
+        
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (event) => {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Prevent scroll bounce on iOS
+        document.addEventListener('touchmove', (event) => {
+            if (event.scale !== 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

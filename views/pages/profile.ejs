@@ -1,0 +1,853 @@
+<!-- views/pages/profile.ejs - User profile page -->
+<% layout('layouts/main') -%>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <% if (typeof telegramUser !== 'undefined' && telegramUser && telegramUser.photo_url) { %>
+                <img src="<%= telegramUser.photo_url %>" alt="<%= telegramUser.first_name %>" class="avatar-image">
+            <% } else { %>
+                <div class="avatar-placeholder">
+                    <%= (typeof telegramUser !== 'undefined' && telegramUser) ? telegramUser.first_name.charAt(0).toUpperCase() : 'U' %>
+                </div>
+            <% } %>
+        </div>
+        
+        <div class="profile-info">
+            <h1 class="profile-name">
+                <%= (typeof telegramUser !== 'undefined' && telegramUser) ? telegramUser.first_name : 'User' %>
+                <%= (typeof telegramUser !== 'undefined' && telegramUser && telegramUser.last_name) ? telegramUser.last_name : '' %>
+            </h1>
+            
+            <% if (typeof telegramUser !== 'undefined' && telegramUser && telegramUser.username) { %>
+                <div class="profile-username">@<%= telegramUser.username %></div>
+            <% } %>
+            
+            <div class="profile-id">ID: <%= (typeof telegramUser !== 'undefined' && telegramUser) ? telegramUser.id : 'Unknown' %></div>
+            
+            <% if (typeof user !== 'undefined' && user && user.createdAt) { %>
+                <div class="profile-joined">
+                    <span class="join-icon">📅</span>
+                    Joined <%= new Date(user.createdAt).toLocaleDateString() %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Profile Stats -->
+    <div class="profile-stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value">
+                    <% if (typeof membership !== 'undefined' && membership) { %>
+                        Level <%= membership.planId %>
+                    <% } else { %>
+                        No Plan
+                    <% } %>
+                </div>
+                <div class="stat-label">Membership</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value">
+                    <% if (typeof membership !== 'undefined' && membership) { %>
+                        <%= (parseInt(membership.totalEarnings || 0) / 1000000).toFixed(2) %>
+                    <% } else { %>
+                        0.00
+                    <% } %>
+                </div>
+                <div class="stat-label">USDT Earned</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">
+                    <% if (typeof referrals !== 'undefined' && referrals) { %>
+                        <%= referrals.length %>
+                    <% } else { %>
+                        0
+                    <% } %>
+                </div>
+                <div class="stat-label">Referrals</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value">
+                    <% if (typeof user !== 'undefined' && user && user.lastActive) { %>
+                        <%= Math.floor((Date.now() - new Date(user.lastActive)) / (1000 * 60 * 60 * 24)) %>d
+                    <% } else { %>
+                        0d
+                    <% } %>
+                </div>
+                <div class="stat-label">Last Active</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Details -->
+    <div class="profile-details">
+        <div class="detail-section">
+            <h3>Account Information</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Telegram ID</span>
+                    <span class="detail-value">
+                        <%= (typeof telegramUser !== 'undefined' && telegramUser) ? telegramUser.id : 'Not available' %>
+                    </span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Language</span>
+                    <span class="detail-value">
+                        <%= (typeof telegramUser !== 'undefined' && telegramUser && telegramUser.language_code) ? telegramUser.language_code.toUpperCase() : 'EN' %>
+                    </span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Theme</span>
+                    <span class="detail-value">
+                        <%= (typeof telegramUser !== 'undefined' && telegramUser && telegramUser.colorScheme) ? telegramUser.colorScheme : 'Light' %>
+                    </span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Referral Code</span>
+                    <span class="detail-value referral-code" onclick="copyReferralCode()">
+                        <%= (typeof user !== 'undefined' && user && user.referralCode) ? user.referralCode : 'N/A' %>
+                        <span class="copy-icon">📋</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet Information -->
+        <div class="detail-section">
+            <h3>Wallet Information</h3>
+            <% if (typeof user !== 'undefined' && user && user.walletAddress) { %>
+                <div class="wallet-connected">
+                    <div class="wallet-status connected">
+                        <span class="status-icon">✅</span>
+                        <span class="status-text">Wallet Connected</span>
+                    </div>
+                    
+                    <div class="wallet-address">
+                        <span class="address-label">Address:</span>
+                        <span class="address-value" onclick="copyWalletAddress()">
+                            <%= user.walletAddress.substring(0, 6) %>....<%= user.walletAddress.substring(38) %>
+                            <span class="copy-icon">📋</span>
+                        </span>
+                    </div>
+                    
+                    <div class="wallet-network">
+                        <span class="network-label">Network:</span>
+                        <span class="network-value">Binance Smart Chain</span>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="wallet-disconnected">
+                    <div class="wallet-status disconnected">
+                        <span class="status-icon">❌</span>
+                        <span class="status-text">No Wallet Connected</span>
+                    </div>
+                    
+                    <a href="/wallet/connect" class="connect-wallet-btn">
+                        <span class="btn-icon">🔗</span>
+                        <span class="btn-text">Connect Wallet</span>
+                    </a>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Membership Information -->
+        <% if (typeof membership !== 'undefined' && membership) { %>
+            <div class="detail-section">
+                <h3>Membership Details</h3>
+                <div class="membership-info">
+                    <div class="membership-card-mini">
+                        <div class="card-header">
+                            <div class="plan-icon">
+                                <% if (membership.planId <= 4) { %>🌟
+                                <% } else if (membership.planId <= 8) { %>💎
+                                <% } else if (membership.planId <= 12) { %>👑
+                                <% } else { %>🔥<% } %>
+                            </div>
+                            <div class="plan-info">
+                                <div class="plan-name"><%= membership.planName %></div>
+                                <div class="plan-level">Level <%= membership.planId %></div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Registered:</span>
+                                <span class="detail-value">
+                                    <%= new Date(membership.registeredAt).toLocaleDateString() %>
+                                </span>
+                            </div>
+                            
+                            <div class="detail-row">
+                                <span class="detail-label">Cycle:</span>
+                                <span class="detail-value">#<%= membership.cycleNumber || 1 %></span>
+                            </div>
+                            
+                            <% if (membership.tokenId) { %>
+                                <div class="detail-row">
+                                    <span class="detail-label">NFT Token ID:</span>
+                                    <span class="detail-value">#<%= membership.tokenId %></span>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Referral Information -->
+        <% if (typeof referrals !== 'undefined' && referrals && referrals.length > 0) { %>
+            <div class="detail-section">
+                <h3>Recent Referrals</h3>
+                <div class="referrals-list">
+                    <% referrals.slice(0, 5).forEach(referral => { %>
+                        <div class="referral-item">
+                            <div class="referral-avatar">
+                                <%= referral.firstName.charAt(0).toUpperCase() %>
+                            </div>
+                            <div class="referral-info">
+                                <div class="referral-name">
+                                    <%= referral.firstName %> <%= referral.lastName || '' %>
+                                </div>
+                                <div class="referral-date">
+                                    <%= new Date(referral.createdAt).toLocaleDateString() %>
+                                </div>
+                            </div>
+                            <div class="referral-status">
+                                <span class="status-active">✅</span>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+                
+                <% if (referrals.length > 5) { %>
+                    <div class="view-all-referrals">
+                        <a href="/membership/dashboard#referrals">
+                            View All <%= referrals.length %> Referrals
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Profile Actions -->
+    <div class="profile-actions">
+        <div class="action-buttons">
+            <% if (typeof membership !== 'undefined' && membership) { %>
+                <a href="/membership/dashboard" class="action-btn primary">
+                    <span class="btn-icon">📊</span>
+                    <span class="btn-text">Dashboard</span>
+                </a>
+                
+                <a href="/membership/plans" class="action-btn secondary">
+                    <span class="btn-icon">⬆️</span>
+                    <span class="btn-text">Upgrade</span>
+                </a>
+            <% } else { %>
+                <a href="/membership/plans" class="action-btn primary">
+                    <span class="btn-icon">🎯</span>
+                    <span class="btn-text">Choose Plan</span>
+                </a>
+            <% } %>
+            
+            <button onclick="shareProfile()" class="action-btn secondary">
+                <span class="btn-icon">📤</span>
+                <span class="btn-text">Share Profile</span>
+            </button>
+            
+            <button onclick="refreshProfile()" class="action-btn secondary">
+                <span class="btn-icon">🔄</span>
+                <span class="btn-text">Refresh</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="profile-settings">
+        <h3>Settings</h3>
+        <div class="settings-list">
+            <div class="setting-item" onclick="toggleNotifications()">
+                <div class="setting-info">
+                    <span class="setting-icon">🔔</span>
+                    <span class="setting-name">Notifications</span>
+                </div>
+                <div class="setting-toggle">
+                    <span class="toggle-status" id="notificationStatus">On</span>
+                </div>
+            </div>
+            
+            <div class="setting-item" onclick="changeLanguage()">
+                <div class="setting-info">
+                    <span class="setting-icon">🌐</span>
+                    <span class="setting-name">Language</span>
+                </div>
+                <div class="setting-value">
+                    <%= (typeof telegramUser !== 'undefined' && telegramUser && telegramUser.language_code) ? telegramUser.language_code.toUpperCase() : 'EN' %>
+                </div>
+            </div>
+            
+            <div class="setting-item" onclick="exportData()">
+                <div class="setting-info">
+                    <span class="setting-icon">📋</span>
+                    <span class="setting-name">Export Data</span>
+                </div>
+                <div class="setting-arrow">→</div>
+            </div>
+            
+            <div class="setting-item" onclick="contactSupport()">
+                <div class="setting-info">
+                    <span class="setting-icon">🆘</span>
+                    <span class="setting-name">Support</span>
+                </div>
+                <div class="setting-arrow">→</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 16px;
+}
+
+.profile-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--tg-theme-text-color);
+}
+
+.profile-username {
+    color: var(--tg-theme-button-color);
+    font-weight: 500;
+    margin-bottom: 3px;
+}
+
+.profile-id {
+    color: var(--tg-theme-hint-color);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.profile-joined {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--tg-theme-hint-color);
+    font-size: 0.9rem;
+}
+
+.profile-stats {
+    margin-bottom: 30px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 20px;
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--tg-theme-button-color);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    color: var(--tg-theme-hint-color);
+    font-size: 0.9rem;
+}
+
+.detail-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+}
+
+.detail-section h3 {
+    margin-bottom: 15px;
+    color: var(--tg-theme-text-color);
+    border-bottom: 1px solid #e1e5e9;
+    padding-bottom: 10px;
+}
+
+.detail-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.detail-label {
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.detail-value {
+    color: var(--tg-theme-text-color);
+    font-weight: 500;
+}
+
+.referral-code {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s ease;
+}
+
+.referral-code:hover {
+    color: var(--tg-theme-button-color);
+}
+
+.copy-icon {
+    font-size: 0.8rem;
+}
+
+.wallet-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.wallet-status.connected .status-text {
+    color: #28a745;
+}
+
+.wallet-status.disconnected .status-text {
+    color: #dc3545;
+}
+
+.wallet-address, .wallet-network {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.address-value {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: monospace;
+    transition: color 0.2s ease;
+}
+
+.address-value:hover {
+    color: var(--tg-theme-button-color);
+}
+
+.connect-wallet-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.connect-wallet-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.membership-card-mini {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 16px;
+    color: white;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.plan-icon {
+    font-size: 1.5rem;
+}
+
+.plan-name {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.plan-level {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.card-details {
+    display: grid;
+    gap: 8px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.detail-row .detail-label {
+    opacity: 0.8;
+}
+
+.referrals-list {
+    display: grid;
+    gap: 12px;
+}
+
+.referral-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 8px;
+}
+
+.referral-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--tg-theme-button-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.referral-info {
+    flex: 1;
+}
+
+.referral-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.referral-date {
+    color: var(--tg-theme-hint-color);
+    font-size: 0.8rem;
+}
+
+.view-all-referrals {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.view-all-referrals a {
+    color: var(--tg-theme-button-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 25px 0;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.action-btn.primary {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.action-btn.secondary {
+    background: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
+    border: 1px solid #e1e5e9;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.settings-list {
+    display: grid;
+    gap: 2px;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.setting-item:first-child {
+    border-radius: 8px 8px 0 0;
+}
+
+.setting-item:last-child {
+    border-radius: 0 0 8px 8px;
+}
+
+.setting-item:hover {
+    background: rgba(36, 129, 204, 0.1);
+}
+
+.setting-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.setting-icon {
+    font-size: 1.2rem;
+}
+
+.setting-name {
+    font-weight: 500;
+}
+
+.setting-value, .setting-arrow {
+    color: var(--tg-theme-hint-color);
+}
+
+@media (max-width: 480px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function copyReferralCode() {
+    const referralCode = '<%= (typeof user !== 'undefined' && user && user.referralCode) ? user.referralCode : '' %>';
+    if (referralCode) {
+        copyToClipboard(referralCode);
+        showNotification('Referral code copied!');
+    }
+}
+
+function copyWalletAddress() {
+    const walletAddress = '<%= (typeof user !== 'undefined' && user && user.walletAddress) ? user.walletAddress : '' %>';
+    if (walletAddress) {
+        copyToClipboard(walletAddress);
+        showNotification('Wallet address copied!');
+    }
+}
+
+async function copyToClipboard(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+    } catch (error) {
+        // Fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+    }
+}
+
+function shareProfile() {
+    const userName = '<%= (typeof telegramUser !== 'undefined' && telegramUser) ? telegramUser.first_name : 'User' %>';
+    const shareText = `Check out ${userName}'s profile on Crypto Membership NFT!`;
+    
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.switchInlineQuery(shareText, ['users']);
+    } else {
+        if (navigator.share) {
+            navigator.share({
+                title: 'My Profile - Crypto Membership NFT',
+                text: shareText,
+                url: window.location.href
+            });
+        } else {
+            copyToClipboard(window.location.href);
+            showNotification('Profile link copied!');
+        }
+    }
+}
+
+async function refreshProfile() {
+    try {
+        showNotification('Refreshing profile...');
+        
+        const response = await fetch('/api/membership/refresh', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showNotification('Error refreshing profile');
+        }
+    } catch (error) {
+        console.error('Error refreshing profile:', error);
+        showNotification('Error refreshing profile');
+    }
+}
+
+function toggleNotifications() {
+    const status = document.getElementById('notificationStatus');
+    const currentStatus = status.textContent;
+    status.textContent = currentStatus === 'On' ? 'Off' : 'On';
+    showNotification(`Notifications ${status.textContent.toLowerCase()}`);
+}
+
+function changeLanguage() {
+    showNotification('Language settings coming soon!');
+}
+
+function exportData() {
+    showNotification('Data export feature coming soon!');
+}
+
+function contactSupport() {
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.openLink('https://t.me/your_support_username');
+    } else {
+        window.open('/support', '_blank');
+    }
+}
+
+function showNotification(message) {
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert(message);
+    } else {
+        alert(message);
+    }
+    
+    // Haptic feedback
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+}
+
+// Add haptic feedback to clickable elements
+document.addEventListener('DOMContentLoaded', () => {
+    const clickableElements = document.querySelectorAll('.referral-code, .address-value, .action-btn, .setting-item');
+    
+    clickableElements.forEach(element => {
+        element.addEventListener('click', () => {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+        });
+    });
+});
+</script>
