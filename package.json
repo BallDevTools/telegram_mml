@@ -6,11 +6,32 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test": "jest",
+    
     "setup-bot": "node scripts/setupBot.js",
     "test-bot": "node scripts/testBot.js",
-    "deploy": "npm run setup-bot && npm start",
     "webhook-test": "node scripts/testWebhook.js",
-    "check-events": "node scripts/checkContractEvents.js"
+    "check-events": "node scripts/checkContractEvents.js",
+    
+    "pm2:setup": "chmod +x scripts/pm2-commands.sh && ./scripts/pm2-commands.sh setup",
+    "pm2:start": "./scripts/pm2-commands.sh start",
+    "pm2:stop": "./scripts/pm2-commands.sh stop",
+    "pm2:restart": "./scripts/pm2-commands.sh restart",
+    "pm2:reload": "./scripts/pm2-commands.sh reload",
+    "pm2:status": "./scripts/pm2-commands.sh status",
+    "pm2:logs": "./scripts/pm2-commands.sh logs",
+    "pm2:monitor": "./scripts/pm2-commands.sh monitor",
+    "pm2:delete": "./scripts/pm2-commands.sh delete",
+    "pm2:health": "./scripts/pm2-commands.sh health",
+    
+    "deploy:production": "npm run pm2:setup && npm run pm2:start",
+    "deploy:staging": "NODE_ENV=staging npm run pm2:start",
+    
+    "logs:app": "pm2 logs crypto-membership-nft",
+    "logs:events": "pm2 logs event-listener",
+    "logs:all": "pm2 logs",
+    
+    "backup:logs": "tar -czf logs-backup-$(date +%Y%m%d).tar.gz logs/",
+    "clean:logs": "pm2 flush && > logs/app.log && > logs/error.log"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -28,8 +49,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
     "morgan": "^1.10.0",
-    "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.63.0",
+    "node-fetch": "^3.3.2",
     "validator": "^13.11.0"
   },
   "devDependencies": {
