@@ -591,7 +591,7 @@ class TelegramBotService {
             `🔄 Cycle: <b>#${membership.cycleNumber}</b>\n\n` +
             `🚀 <i>Keep growing your network!</i>`;
     }
-    // Keyboard Creators
+    
     createStartKeyboard() {
         return {
             inline_keyboard: [
