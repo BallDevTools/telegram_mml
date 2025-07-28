@@ -1,0 +1,236 @@
+<!-- views/error.ejs -->
+<!DOCTYPE html>
+<html lang="en" data-theme="<%= (typeof telegramUser !== 'undefined' && telegramUser?.colorScheme) || 'light' %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error | Crypto Membership NFT</title>
+    <link rel="stylesheet" href="/css/telegram.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        .error-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+        }
+        
+        .error-content {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .error-icon {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+        
+        .error-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--tg-theme-text-color);
+        }
+        
+        .error-message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--tg-theme-hint-color);
+            line-height: 1.6;
+        }
+        
+        .error-details {
+            background: var(--tg-theme-secondary-bg-color);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid var(--tg-theme-hint-color);
+            text-align: left;
+        }
+        
+        .error-stack {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--tg-theme-hint-color);
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .error-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: var(--tg-theme-button-color);
+            color: var(--tg-theme-button-text-color);
+        }
+        
+        .btn-secondary {
+            background: var(--tg-theme-secondary-bg-color);
+            color: var(--tg-theme-text-color);
+            border: 1px solid var(--tg-theme-hint-color);
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .help-info {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .help-info h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        
+        .help-info p {
+            color: var(--tg-theme-text-color);
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        @media (max-width: 480px) {
+            .error-icon { font-size: 3rem; }
+            .error-title { font-size: 2rem; }
+            .error-message { font-size: 1rem; }
+            .error-actions { flex-direction: column; align-items: center; }
+            .error-details { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-content">
+            <div class="error-icon">⚠️</div>
+            <h1 class="error-title">Something went wrong</h1>
+            <p class="error-message">
+                <%= message || 'An unexpected error occurred. Please try again.' %>
+            </p>
+            
+            <% if (typeof error !== 'undefined' && error && error.stack) { %>
+                <div class="error-details">
+                    <h3>Error Details:</h3>
+                    <p><strong>Message:</strong> <%= error.message %></p>
+                    <% if (process.env.NODE_ENV === 'development') { %>
+                        <div class="error-stack"><%= error.stack %></div>
+                    <% } %>
+                </div>
+            <% } %>
+            
+            <div class="error-actions">
+                <a href="/" class="btn btn-primary">
+                    <span>🏠</span>
+                    <span>Go Home</span>
+                </a>
+                
+                <button onclick="location.reload()" class="btn btn-secondary">
+                    <span>🔄</span>
+                    <span>Retry</span>
+                </button>
+                
+                <button onclick="history.back()" class="btn btn-secondary">
+                    <span>⬅️</span>
+                    <span>Go Back</span>
+                </button>
+                
+                <a href="/support" class="btn btn-danger">
+                    <span>🆘</span>
+                    <span>Get Help</span>
+                </a>
+            </div>
+            
+            <div class="help-info">
+                <h3>🛠️ Need Help?</h3>
+                <p>
+                    If this error persists, please contact our support team. 
+                    Include the time this error occurred and what you were trying to do.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Telegram Web App
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            
+            // Set back button
+            window.Telegram.WebApp.BackButton.show();
+            window.Telegram.WebApp.BackButton.onClick(() => {
+                window.location.href = '/';
+            });
+            
+            // Show alert for errors
+            setTimeout(() => {
+                window.Telegram.WebApp.showAlert('An error occurred. Please try again or contact support.');
+            }, 1000);
+        }
+        
+        // Add haptic feedback to buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.Telegram?.WebApp?.HapticFeedback) {
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                }
+            });
+        });
+        
+        // Auto-report error (optional)
+        if (typeof error !== 'undefined' && window.Telegram?.WebApp) {
+            console.error('App Error:', {
+                message: '<%= message %>',
+                timestamp: new Date().toISOString(),
+                url: window.location.href,
+                userAgent: navigator.userAgent
+            });
+        }
+    </script>
+</body>
+</html>
