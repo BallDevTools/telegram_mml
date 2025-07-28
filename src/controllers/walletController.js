@@ -1,4 +1,4 @@
-// src/controllers/walletController.js
+// src/controllers/walletController.js - Fixed version
 const User = require('../models/User');
 const Membership = require('../models/Membership');
 const web3Service = require('../services/web3Service');
@@ -54,6 +54,7 @@ const walletController = {
                 }
             ];
 
+            // ไม่ใช้ layout('layouts/main') แต่ render แบบ standalone
             res.render('pages/wallet-connect', {
                 title: 'Connect Wallet',
                 supportedWallets,
@@ -64,7 +65,8 @@ const walletController = {
             console.error('Wallet connect page error:', error);
             res.status(500).render('error', {
                 message: 'Error loading wallet connection page',
-                telegramUser: req.telegramUser
+                telegramUser: req.telegramUser,
+                layout: false
             });
         }
     },
@@ -114,13 +116,15 @@ const walletController = {
                 walletBalance,
                 transactions,
                 telegramUser: req.telegramUser,
-                user: req.user
+                user: req.user,
+                layout: false // ไม่ใช้ layout
             });
         } catch (error) {
             console.error('Wallet dashboard error:', error);
             res.status(500).render('error', {
                 message: 'Error loading wallet dashboard',
-                telegramUser: req.telegramUser
+                telegramUser: req.telegramUser,
+                layout: false
             });
         }
     },
@@ -345,13 +349,15 @@ const walletController = {
                 title: 'Transaction History',
                 transactions,
                 telegramUser: req.telegramUser,
-                user: req.user
+                user: req.user,
+                layout: false
             });
         } catch (error) {
             console.error('Transactions page error:', error);
             res.status(500).render('error', {
                 message: 'Error loading transactions',
-                telegramUser: req.telegramUser
+                telegramUser: req.telegramUser,
+                layout: false
             });
         }
     },
