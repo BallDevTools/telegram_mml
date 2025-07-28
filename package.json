@@ -5,7 +5,12 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "jest"
+    "test": "jest",
+    "setup-bot": "node scripts/setupBot.js",
+    "test-bot": "node scripts/testBot.js",
+    "deploy": "npm run setup-bot && npm start",
+    "webhook-test": "node scripts/testWebhook.js",
+    "check-events": "node scripts/checkContractEvents.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -23,6 +28,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
     "morgan": "^1.10.0",
+    "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.63.0",
     "validator": "^13.11.0"
   },
