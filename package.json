@@ -47,6 +47,7 @@
     "morgan": "^1.10.0",
     "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.63.0",
+    "qrcode": "^1.5.4",
     "validator": "^13.11.0"
   },
   "devDependencies": {
