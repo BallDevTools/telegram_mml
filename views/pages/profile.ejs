@@ -748,7 +748,6 @@ async function copyToClipboard(text) {
     try {
         await navigator.clipboard.writeText(text);
     } catch (error) {
-        // Fallback
         const textArea = document.createElement('textarea');
         textArea.value = text;
         document.body.appendChild(textArea);
