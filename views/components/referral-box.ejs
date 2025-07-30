@@ -1,0 +1,880 @@
+<!-- views/components/referral-box.ejs -->
+<div class="referral-box-component">
+    <div class="referral-header">
+        <div class="referral-icon">🔗</div>
+        <div class="referral-info">
+            <h3 class="referral-title">Share & Earn</h3>
+            <p class="referral-subtitle">Invite friends and earn commissions</p>
+        </div>
+    </div>
+
+    <!-- Referral Stats -->
+    <div class="referral-stats">
+        <div class="stat-grid">
+            <div class="stat-item">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <div class="stat-value">
+                        <%= (typeof referrals !== 'undefined' && referrals) ? referrals.length : 0 %>
+                    </div>
+                    <div class="stat-label">Total Referrals</div>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon">💰</div>
+                <div class="stat-content">
+                    <div class="stat-value">
+                        <%= (typeof membership !== 'undefined' && membership) ? (parseInt(membership.totalEarnings || 0) / 1000000).toFixed(2) : '0.00' %>
+                    </div>
+                    <div class="stat-label">USDT Earned</div>
+                </div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon">📈</div>
+                <div class="stat-content">
+                    <div class="stat-value">
+                        <%= (typeof referrals !== 'undefined' && referrals) ? referrals.filter(r => new Date() - new Date(r.createdAt) <= 7 * 24 * 60 * 60 * 1000).length : 0 %>
+                    </div>
+                    <div class="stat-label">This Week</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Link Section -->
+    <div class="referral-link-section">
+        <div class="link-header">
+            <h4>Your Referral Link</h4>
+            <button class="refresh-link-btn" onclick="generateNewReferralLink()" title="Refresh Link">
+                <span class="refresh-icon">🔄</span>
+            </button>
+        </div>
+        
+        <div class="link-container" id="referralLinkContainer">
+            <input type="text" 
+                   id="referralLinkInput" 
+                   class="referral-input" 
+                   readonly 
+                   placeholder="Generating link...">
+            <button class="copy-btn" onclick="copyReferralLink()">
+                <span class="copy-icon">📋</span>
+                <span class="copy-text">Copy</span>
+            </button>
+        </div>
+        
+        <div class="link-stats">
+            <span class="link-stat">
+                <span class="stat-icon">👁️</span>
+                <span class="stat-text">0 views</span>
+            </span>
+            <span class="link-stat">
+                <span class="stat-icon">✅</span>
+                <span class="stat-text">0 conversions</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Share Options -->
+    <div class="share-options">
+        <div class="share-header">
+            <h4>Share Options</h4>
+        </div>
+        
+        <div class="share-buttons">
+            <button class="share-btn telegram" onclick="shareViaTelegram()">
+                <span class="share-icon">📱</span>
+                <span class="share-text">Telegram</span>
+            </button>
+            
+            <button class="share-btn whatsapp" onclick="shareViaWhatsApp()">
+                <span class="share-icon">💬</span>
+                <span class="share-text">WhatsApp</span>
+            </button>
+            
+            <button class="share-btn twitter" onclick="shareViaTwitter()">
+                <span class="share-icon">🐦</span>
+                <span class="share-text">Twitter</span>
+            </button>
+            
+            <button class="share-btn qr" onclick="generateQRCode()">
+                <span class="share-icon">📱</span>
+                <span class="share-text">QR Code</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Recent Referrals -->
+    <% if (typeof referrals !== 'undefined' && referrals && referrals.length > 0) { %>
+        <div class="recent-referrals">
+            <div class="referrals-header">
+                <h4>Recent Referrals</h4>
+                <a href="/referrals" class="view-all-link">View All</a>
+            </div>
+            
+            <div class="referrals-list">
+                <% referrals.slice(0, 3).forEach(referral => { %>
+                    <div class="referral-item">
+                        <div class="referral-avatar">
+                            <%= referral.firstName.charAt(0).toUpperCase() %>
+                        </div>
+                        <div class="referral-info">
+                            <div class="referral-name">
+                                <%= referral.firstName %> <%= referral.lastName || '' %>
+                            </div>
+                            <div class="referral-username">
+                                @<%= referral.username || 'user' + referral.telegramId %>
+                            </div>
+                            <div class="referral-date">
+                                <%= new Date(referral.createdAt).toLocaleDateString() %>
+                            </div>
+                        </div>
+                        <div class="referral-status">
+                            <span class="status-badge active">Active</span>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    <% } else { %>
+        <div class="no-referrals">
+            <div class="no-referrals-icon">👥</div>
+            <h4>No Referrals Yet</h4>
+            <p>Start sharing your link to earn commissions!</p>
+        </div>
+    <% } %>
+
+    <!-- Referral Tips -->
+    <div class="referral-tips">
+        <div class="tips-header">
+            <h4>💡 Tips to Maximize Earnings</h4>
+        </div>
+        
+        <div class="tips-list">
+            <div class="tip-item">
+                <span class="tip-icon">📢</span>
+                <span class="tip-text">Share on social media platforms</span>
+            </div>
+            <div class="tip-item">
+                <span class="tip-icon">🎯</span>
+                <span class="tip-text">Target crypto enthusiasts</span>
+            </div>
+            <div class="tip-item">
+                <span class="tip-icon">💬</span>
+                <span class="tip-text">Explain the benefits clearly</span>
+            </div>
+            <div class="tip-item">
+                <span class="tip-icon">⏰</span>
+                <span class="tip-text">Share during peak hours</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Commission Structure -->
+    <div class="commission-info">
+        <div class="commission-header">
+            <h4>💰 Commission Structure</h4>
+        </div>
+        
+        <div class="commission-tiers">
+            <div class="tier-item">
+                <span class="tier-level">Level 1-4</span>
+                <span class="tier-rate">10%</span>
+            </div>
+            <div class="tier-item">
+                <span class="tier-level">Level 5-8</span>
+                <span class="tier-rate">15%</span>
+            </div>
+            <div class="tier-item">
+                <span class="tier-level">Level 9-12</span>
+                <span class="tier-rate">20%</span>
+            </div>
+            <div class="tier-item">
+                <span class="tier-level">Level 13-16</span>
+                <span class="tier-rate">25%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.referral-box-component {
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.referral-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.referral-icon {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.referral-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: var(--tg-theme-text-color);
+}
+
+.referral-subtitle {
+    font-size: 0.9rem;
+    color: var(--tg-theme-hint-color);
+    margin: 0;
+}
+
+.referral-stats {
+    margin-bottom: 24px;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    transition: transform 0.2s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--tg-theme-button-color);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.referral-link-section {
+    margin-bottom: 24px;
+}
+
+.link-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.link-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.refresh-link-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.refresh-link-btn:hover {
+    background: var(--tg-theme-secondary-bg-color);
+}
+
+.refresh-icon {
+    font-size: 1rem;
+    display: block;
+    animation: rotate 2s linear infinite paused;
+}
+
+.refresh-link-btn.loading .refresh-icon {
+    animation-play-state: running;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.link-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.referral-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid var(--tg-theme-hint-color);
+    border-radius: 8px;
+    background: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    font-size: 0.9rem;
+    font-family: monospace;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.referral-input:focus {
+    border-color: var(--tg-theme-button-color);
+}
+
+.copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 16px;
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.copy-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.copy-btn.copied {
+    background: #28a745;
+    animation: pulse 0.3s ease;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.copy-icon {
+    font-size: 0.9rem;
+}
+
+.link-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 0.8rem;
+    color: var(--tg-theme-hint-color);
+}
+
+.link-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.share-options {
+    margin-bottom: 24px;
+}
+
+.share-header h4 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.share-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.share-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.share-btn.telegram {
+    background: #0088cc;
+    color: white;
+}
+
+.share-btn.whatsapp {
+    background: #25d366;
+    color: white;
+}
+
+.share-btn.twitter {
+    background: #1da1f2;
+    color: white;
+}
+
+.share-btn.qr {
+    background: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
+    border: 1px solid var(--tg-theme-hint-color);
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.share-icon {
+    font-size: 1.2rem;
+}
+
+.recent-referrals {
+    margin-bottom: 24px;
+}
+
+.referrals-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.referrals-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.view-all-link {
+    color: var(--tg-theme-button-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.referrals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.referral-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.referral-item:hover {
+    transform: translateX(4px);
+}
+
+.referral-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--tg-theme-button-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.referral-info {
+    flex: 1;
+}
+
+.referral-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: var(--tg-theme-text-color);
+    font-size: 0.9rem;
+}
+
+.referral-username {
+    color: var(--tg-theme-button-color);
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+}
+
+.referral-date {
+    color: var(--tg-theme-hint-color);
+    font-size: 0.75rem;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.no-referrals {
+    text-align: center;
+    padding: 40px 20px;
+    margin-bottom: 24px;
+}
+
+.no-referrals-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.6;
+}
+
+.no-referrals h4 {
+    margin: 0 0 8px 0;
+    color: var(--tg-theme-text-color);
+}
+
+.no-referrals p {
+    margin: 0;
+    color: var(--tg-theme-hint-color);
+    font-size: 0.9rem;
+}
+
+.referral-tips, .commission-info {
+    margin-bottom: 24px;
+}
+
+.tips-header, .commission-header {
+    margin-bottom: 16px;
+}
+
+.tips-header h4, .commission-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.tips-list {
+    display: grid;
+    gap: 12px;
+}
+
+.tip-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.tip-icon {
+    font-size: 1.1rem;
+    width: 24px;
+    flex-shrink: 0;
+}
+
+.commission-tiers {
+    display: grid;
+    gap: 8px;
+}
+
+.tier-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.tier-level {
+    font-weight: 500;
+    color: var(--tg-theme-text-color);
+}
+
+.tier-rate {
+    font-weight: bold;
+    color: var(--tg-theme-button-color);
+    font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stat-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .share-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .link-container {
+        flex-direction: column;
+    }
+    
+    .copy-btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .referral-box-component {
+        padding: 16px;
+        margin: 16px 0;
+    }
+    
+    .referral-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .stat-item {
+        padding: 12px;
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .share-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .referral-item {
+        padding: 10px 12px;
+    }
+    
+    .referral-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Dark Theme */
+[data-theme="dark"] .referral-box-component {
+    border-color: #333333;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .referral-header {
+    border-bottom-color: #333333;
+}
+
+[data-theme="dark"] .stat-item,
+[data-theme="dark"] .referral-item,
+[data-theme="dark"] .tip-item,
+[data-theme="dark"] .tier-item {
+    background: #2a2a2a;
+}
+
+[data-theme="dark"] .referral-input {
+    background: #2a2a2a;
+    border-color: #444444;
+}
+
+[data-theme="dark"] .share-btn.qr {
+    background: #2a2a2a;
+    border-color: #444444;
+}
+</style>
+
+<script>
+// Generate referral link
+function generateReferralLink() {
+    const baseUrl = window.location.origin;
+    const telegramUserId = window.APP_DATA?.telegramUser?.id;
+    const walletAddress = window.APP_DATA?.user?.walletAddress;
+    
+    if (telegramUserId && walletAddress) {
+        const referralCode = btoa(`${walletAddress}_${telegramUserId}`).replace(/[+/=]/g, '');
+        return `https://t.me/${window.APP_DATA?.botUsername || 'your_bot'}/app?startapp=ref_${referralCode}`;
+    }
+    
+    return baseUrl;
+}
+
+// Initialize referral link
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('referralLinkInput');
+    if (input) {
+        input.value = generateReferralLink();
+    }
+});
+
+// Copy referral link
+async function copyReferralLink() {
+    const input = document.getElementById('referralLinkInput');
+    const copyBtn = document.querySelector('.copy-btn');
+    
+    try {
+        await navigator.clipboard.writeText(input.value);
+        
+        // Visual feedback
+        copyBtn.classList.add('copied');
+        copyBtn.innerHTML = '<span class="copy-icon">✅</span><span class="copy-text">Copied!</span>';
+        
+        // Haptic feedback
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+        
+        // Show notification
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Referral link copied!');
+        } else {
+            alert('Referral link copied!');
+        }
+        
+        setTimeout(() => {
+            copyBtn.classList.remove('copied');
+            copyBtn.innerHTML = '<span class="copy-icon">📋</span><span class="copy-text">Copy</span>';
+        }, 2000);
+        
+    } catch (error) {
+        // Fallback for older browsers
+        input.select();
+        document.execCommand('copy');
+        
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Referral link copied!');
+        } else {
+            alert('Referral link copied!');
+        }
+    }
+}
+
+// Generate new referral link
+function generateNewReferralLink() {
+    const refreshBtn = document.querySelector('.refresh-link-btn');
+    const input = document.getElementById('referralLinkInput');
+    
+    refreshBtn.classList.add('loading');
+    
+    setTimeout(() => {
+        input.value = generateReferralLink();
+        refreshBtn.classList.remove('loading');
+        
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+    }, 1000);
+}
+
+// Share via Telegram
+function shareViaTelegram() {
+    const referralLink = document.getElementById('referralLinkInput').value;
+    const userName = window.APP_DATA?.telegramUser?.first_name || 'User';
+    const message = `🚀 Join ${userName} on Crypto Membership NFT!\n\n💎 Exclusive NFT memberships\n💰 Earn commissions\n📈 16 levels to unlock\n\nUse my referral link:\n${referralLink}`;
+    
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.switchInlineQuery(message, ['users']);
+    } else {
+        const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(message)}`;
+        window.open(telegramUrl, '_blank');
+    }
+    
+    // Haptic feedback
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+}
+
+// Share via WhatsApp
+function shareViaWhatsApp() {
+    const referralLink = document.getElementById('referralLinkInput').value;
+    const message = `🚀 Join me on Crypto Membership NFT! Exclusive NFT memberships with earning potential. Use my referral link: ${referralLink}`;
+    
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+    
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+}
+
+// Share via Twitter
+function shareViaTwitter() {
+    const referralLink = document.getElementById('referralLinkInput').value;
+    const message = `🚀 Just joined Crypto Membership NFT! 💎 Exclusive NFT memberships with earning potential. Join me: ${referralLink} #CryptoNFT #Membership`;
+    
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`;
+    window.open(twitterUrl, '_blank');
+    
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+}
+
+// Generate QR Code
+function generateQRCode() {
+    const referralLink = document.getElementById('referralLinkInput').value;
+    
+    // Create QR code URL using QR Server API
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(referralLink)}`;
+    
+    // Show QR code in modal or new window
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.openLink(qrUrl);
+    } else {
+        window.open(qrUrl, '_blank');
+    }
+    
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+}
+
+// Add haptic feedback to interactive elements
+document.addEventListener('DOMContentLoaded', function() {
+    const interactiveElements = document.querySelectorAll('.share-btn, .copy-btn, .refresh-link-btn, .referral-item');
+    
+    interactiveElements.forEach(element => {
+        element.addEventListener('click', function() {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+        });
+    });
+});
+</script>

@@ -1,0 +1,937 @@
+<!-- views/partials/membership-card.ejs -->
+<div class="membership-card-partial">
+    <% if (typeof membership !== 'undefined' && membership) { %>
+        <div class="membership-nft-card" data-plan-id="<%= membership.planId %>">
+            <!-- Card Background Gradient -->
+            <div class="card-background">
+                <div class="gradient-overlay tier-<%= Math.ceil(membership.planId / 4) %>"></div>
+                <div class="pattern-overlay"></div>
+            </div>
+            
+            <!-- Card Header -->
+            <div class="nft-card-header">
+                <div class="card-logo">
+                    <span class="logo-icon">🚀</span>
+                    <span class="logo-text">CryptoMML</span>
+                </div>
+                <div class="card-status">
+                    <span class="status-indicator active"></span>
+                    <span class="status-text">Active</span>
+                </div>
+            </div>
+            
+            <!-- Card Main Content -->
+            <div class="nft-card-main">
+                <div class="plan-tier-info">
+                    <div class="tier-badge tier-<%= Math.ceil(membership.planId / 4) %>">
+                        <% if (membership.planId <= 4) { %>
+                            <span class="tier-icon">🌟</span>
+                            <span class="tier-name">Starter</span>
+                        <% } else if (membership.planId <= 8) { %>
+                            <span class="tier-icon">💎</span>
+                            <span class="tier-name">Premium</span>
+                        <% } else if (membership.planId <= 12) { %>
+                            <span class="tier-icon">👑</span>
+                            <span class="tier-name">Elite</span>
+                        <% } else { %>
+                            <span class="tier-icon">🔥</span>
+                            <span class="tier-name">Infinity</span>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="plan-details">
+                    <div class="plan-name"><%= membership.planName %></div>
+                    <div class="plan-level">Level <%= membership.planId %></div>
+                </div>
+                
+                <!-- NFT Visual -->
+                <div class="nft-visual-container">
+                    <div class="nft-visual">
+                        <div class="visual-inner">
+                            <% if (membership.planId <= 4) { %>
+                                <div class="tier-visual starter">
+                                    <div class="visual-icon">🌟</div>
+                                    <div class="visual-particles">
+                                        <span class="particle">✨</span>
+                                        <span class="particle">⭐</span>
+                                        <span class="particle">🌟</span>
+                                    </div>
+                                </div>
+                            <% } else if (membership.planId <= 8) { %>
+                                <div class="tier-visual premium">
+                                    <div class="visual-icon">💎</div>
+                                    <div class="visual-particles">
+                                        <span class="particle">💠</span>
+                                        <span class="particle">🔷</span>
+                                        <span class="particle">💎</span>
+                                    </div>
+                                </div>
+                            <% } else if (membership.planId <= 12) { %>
+                                <div class="tier-visual elite">
+                                    <div class="visual-icon">👑</div>
+                                    <div class="visual-particles">
+                                        <span class="particle">👑</span>
+                                        <span class="particle">💠</span>
+                                        <span class="particle">🏆</span>
+                                    </div>
+                                </div>
+                            <% } else { %>
+                                <div class="tier-visual infinity">
+                                    <div class="visual-icon">🔥</div>
+                                    <div class="visual-particles">
+                                        <span class="particle">🔥</span>
+                                        <span class="particle">⚡</span>
+                                        <span class="particle">💥</span>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card Details Grid -->
+            <div class="nft-card-details">
+                <div class="detail-row">
+                    <div class="detail-item">
+                        <span class="detail-label">Token ID</span>
+                        <span class="detail-value">
+                            <% if (membership.tokenId) { %>
+                                #<%= membership.tokenId %>
+                            <% } else { %>
+                                <span class="pending">Minting...</span>
+                            <% } %>
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Cycle</span>
+                        <span class="detail-value">#<%= membership.cycleNumber || 1 %></span>
+                    </div>
+                </div>
+                
+                <div class="detail-row">
+                    <div class="detail-item">
+                        <span class="detail-label">Joined</span>
+                        <span class="detail-value">
+                            <%= new Date(membership.registeredAt).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                            }) %>
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Earnings</span>
+                        <span class="detail-value earnings">
+                            <%= (parseInt(membership.totalEarnings || 0) / 1000000).toFixed(2) %> USDT
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card Footer -->
+            <div class="nft-card-footer">
+                <div class="chain-info">
+                    <span class="chain-icon">🔗</span>
+                    <span class="chain-text">Binance Smart Chain</span>
+                </div>
+                <div class="non-transferable">
+                    <span class="lock-icon">🔒</span>
+                    <span class="lock-text">Non-Transferable</span>
+                </div>
+            </div>
+            
+            <!-- Interactive Elements -->
+            <div class="card-actions">
+                <button class="card-action-btn view-details" onclick="viewNFTDetails(<%= membership.planId %>)">
+                    <span class="action-icon">👁️</span>
+                    <span class="action-text">View Details</span>
+                </button>
+                <button class="card-action-btn share-nft" onclick="shareNFT()">
+                    <span class="action-icon">📤</span>
+                    <span class="action-text">Share</span>
+                </button>
+            </div>
+            
+            <!-- Holographic Effect Overlay -->
+            <div class="holographic-overlay"></div>
+        </div>
+    <% } else { %>
+        <!-- No Membership Card -->
+        <div class="no-membership-card">
+            <div class="placeholder-background">
+                <div class="placeholder-pattern"></div>
+            </div>
+            
+            <div class="placeholder-content">
+                <div class="placeholder-icon">🎨</div>
+                <h3 class="placeholder-title">Your NFT Membership Card</h3>
+                <p class="placeholder-description">
+                    Get your unique NFT membership card by joining any plan
+                </p>
+                <a href="/membership/plans" class="get-membership-btn">
+                    <span class="btn-icon">🎯</span>
+                    <span class="btn-text">Get Membership</span>
+                </a>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<style>
+.membership-card-partial {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.membership-nft-card {
+    max-width: 380px;
+    width: 100%;
+    aspect-ratio: 1.6/1;
+    border-radius: 20px;
+    padding: 24px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 4px 16px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.membership-nft-card:hover {
+    transform: translateY(-8px) rotateX(5deg);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 8px 24px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.card-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 20px;
+}
+
+.gradient-overlay.tier-1 {
+    background: linear-gradient(135deg, 
+        #ffeaa7 0%, 
+        #fab1a0 50%, 
+        #fd79a8 100%);
+}
+
+.gradient-overlay.tier-2 {
+    background: linear-gradient(135deg, 
+        #a29bfe 0%, 
+        #6c5ce7 50%, 
+        #74b9ff 100%);
+}
+
+.gradient-overlay.tier-3 {
+    background: linear-gradient(135deg, 
+        #fd79a8 0%, 
+        #e84393 50%, 
+        #a29bfe 100%);
+}
+
+.gradient-overlay.tier-4 {
+    background: linear-gradient(135deg, 
+        #00b894 0%, 
+        #00cec9 50%, 
+        #55a3ff 100%);
+}
+
+.pattern-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+    border-radius: 20px;
+}
+
+.nft-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 3;
+}
+
+.card-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.logo-icon {
+    font-size: 1.2rem;
+}
+
+.card-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00b894;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.nft-card-main {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 3;
+}
+
+.plan-tier-info {
+    margin-bottom: 12px;
+}
+
+.tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tier-icon {
+    font-size: 1rem;
+}
+
+.plan-details {
+    margin-bottom: 16px;
+}
+
+.plan-name {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.plan-level {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+.nft-visual-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.nft-visual {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.visual-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tier-visual {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.visual-icon {
+    font-size: 3rem;
+    z-index: 2;
+    position: relative;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+.visual-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    font-size: 1rem;
+    opacity: 0.7;
+    animation: particle-float 4s ease-in-out infinite;
+}
+
+.particle:nth-child(1) {
+    top: 10%;
+    left: 20%;
+    animation-delay: 0s;
+}
+
+.particle:nth-child(2) {
+    top: 80%;
+    right: 20%;
+    animation-delay: 1.3s;
+}
+
+.particle:nth-child(3) {
+    bottom: 10%;
+    left: 50%;
+    animation-delay: 2.6s;
+}
+
+@keyframes particle-float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0.7;
+    }
+    33% {
+        transform: translateY(-10px) rotate(120deg);
+        opacity: 1;
+    }
+    66% {
+        transform: translateY(5px) rotate(240deg);
+        opacity: 0.5;
+    }
+}
+
+.nft-card-details {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 3;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
+
+.detail-label {
+    font-size: 0.7rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.detail-value {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.detail-value.earnings {
+    color: #00b894;
+    font-weight: bold;
+}
+
+.pending {
+    color: #ffc107;
+    font-style: italic;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.5; }
+}
+
+.nft-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 3;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.chain-info, .non-transferable {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    position: relative;
+    z-index: 3;
+}
+
+.card-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.card-action-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.action-icon {
+    font-size: 0.9rem;
+}
+
+.holographic-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 70%
+    );
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 20px;
+    z-index: 4;
+}
+
+.membership-nft-card:hover .holographic-overlay {
+    opacity: 1;
+    animation: holographic 2s ease-in-out infinite;
+}
+
+@keyframes holographic {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* No Membership Card */
+.no-membership-card {
+    max-width: 380px;
+    width: 100%;
+    aspect-ratio: 1.6/1;
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 2px dashed var(--tg-theme-hint-color);
+    background: var(--tg-theme-secondary-bg-color);
+}
+
+.placeholder-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.1;
+}
+
+.placeholder-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            var(--tg-theme-hint-color) 10px,
+            var(--tg-theme-hint-color) 11px
+        );
+    border-radius: 20px;
+}
+
+.placeholder-content {
+    position: relative;
+    z-index: 2;
+    color: var(--tg-theme-text-color);
+}
+
+.placeholder-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.6;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.placeholder-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.placeholder-description {
+    font-size: 0.9rem;
+    color: var(--tg-theme-hint-color);
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.get-membership-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.get-membership-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(36, 129, 204, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .membership-nft-card {
+        max-width: 100%;
+        padding: 20px;
+    }
+    
+    .nft-card-details .detail-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+    }
+    
+    .visual-icon {
+        font-size: 2.5rem;
+    }
+    
+    .plan-name {
+        font-size: 1.2rem;
+    }
+    
+    .no-membership-card {
+        padding: 20px;
+    }
+    
+    .placeholder-icon {
+        font-size: 2.5rem;
+    }
+    
+    .placeholder-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Dark Theme Adjustments */
+[data-theme="dark"] .no-membership-card {
+    border-color: #333333;
+    background: #2a2a2a;
+}
+
+[data-theme="dark"] .placeholder-pattern {
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            #333333 10px,
+            #333333 11px
+        );
+}
+
+/* 3D Transform Support */
+@supports (transform-style: preserve-3d) {
+    .membership-nft-card {
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+    
+    .membership-nft-card:hover {
+        transform: translateY(-8px) rotateX(5deg) rotateY(2deg);
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .membership-nft-card,
+    .visual-icon,
+    .particle,
+    .placeholder-icon,
+    .status-indicator,
+    .pending {
+        animation: none;
+    }
+    
+    .membership-nft-card:hover {
+        transform: translateY(-4px);
+    }
+}
+</style>
+
+<script>
+// View NFT Details
+function viewNFTDetails(planId) {
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+    
+    // Create detailed view modal or navigate to details page
+    const membershipDetails = {
+        planId: planId,
+        features: [
+            'Unique NFT Membership Card',
+            'Referral Commission System',
+            'Exclusive Member Benefits',
+            'Upgrade Path Available',
+            'Non-Transferable Token'
+        ],
+        blockchain: 'Binance Smart Chain',
+        standard: 'ERC-721 Compatible'
+    };
+    
+    const detailsHtml = `
+        <div class="nft-details-modal">
+            <h3>🎨 NFT Membership Details</h3>
+            <div class="details-content">
+                <div class="detail-section">
+                    <h4>Plan Features:</h4>
+                    <ul>
+                        ${membershipDetails.features.map(feature => `<li>• ${feature}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h4>Technical Details:</h4>
+                    <p><strong>Blockchain:</strong> ${membershipDetails.blockchain}</p>
+                    <p><strong>Standard:</strong> ${membershipDetails.standard}</p>
+                    <p><strong>Level:</strong> ${planId}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert('NFT Details: Level ' + planId + ' membership with exclusive benefits and commission earning potential.');
+    } else {
+        // Show in modal or alert
+        alert('NFT Details: Level ' + planId + ' membership with exclusive benefits.');
+    }
+}
+
+// Share NFT
+function shareNFT() {
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+    
+    const shareData = {
+        title: 'My Crypto Membership NFT',
+        text: `🎨 Check out my exclusive Level ${window.APP_DATA?.membership?.planId || 'X'} NFT Membership Card! Join the community and start earning.`,
+        url: window.location.origin
+    };
+    
+    if (window.Telegram?.WebApp) {
+        const message = `${shareData.text}\n\n${shareData.url}`;
+        window.Telegram.WebApp.switchInlineQuery(message, ['users']);
+    } else if (navigator.share) {
+        navigator.share(shareData).catch(err => {
+            console.log('Error sharing:', err);
+            fallbackShare(shareData);
+        });
+    } else {
+        fallbackShare(shareData);
+    }
+}
+
+// Fallback share function
+function fallbackShare(shareData) {
+    const shareText = `${shareData.text}\n${shareData.url}`;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText).then(() => {
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.showAlert('Share text copied to clipboard!');
+            } else {
+                alert('Share text copied to clipboard!');
+            }
+        });
+    } else {
+        // Create temporary textarea for copying
+        const textArea = document.createElement('textarea');
+        textArea.value = shareText;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Share text copied to clipboard!');
+        } else {
+            alert('Share text copied to clipboard!');
+        }
+    }
+}
+
+// Add intersection observer for card animations
+document.addEventListener('DOMContentLoaded', function() {
+    const membershipCard = document.querySelector('.membership-nft-card');
+    
+    if (membershipCard && 'IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        membershipCard.style.opacity = '0';
+        membershipCard.style.transform = 'translateY(20px)';
+        membershipCard.style.transition = 'all 0.6s ease';
+        
+        observer.observe(membershipCard);
+    }
+    
+    // Add haptic feedback to interactive elements
+    const interactiveElements = document.querySelectorAll('.card-action-btn, .get-membership-btn, .membership-nft-card');
+    
+    interactiveElements.forEach(element => {
+        element.addEventListener('click', function() {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+        });
+    });
+    
+    // Add hover effects for non-touch devices
+    if (window.matchMedia('(hover: hover)').matches) {
+        const nftCard = document.querySelector('.membership-nft-card');
+        if (nftCard) {
+            nftCard.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                this.style.transform = `translateY(-8px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            
+            nftCard.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
+            });
+        }
+    }
+});
+
+// Export functions for external use
+window.membershipCardActions = {
+    viewDetails: viewNFTDetails,
+    share: shareNFT
+};
+</script>

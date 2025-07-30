@@ -1,0 +1,1300 @@
+<!-- views/partials/wallet-connect.ejs -->
+<div class="wallet-connect-partial">
+    <% if (typeof user !== 'undefined' && user && user.walletAddress) { %>
+        <!-- Wallet Connected State -->
+        <div class="wallet-connected-state">
+            <div class="connection-status">
+                <div class="status-indicator connected">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Wallet Connected</span>
+                </div>
+                <div class="network-badge">
+                    <span class="network-icon">🔗</span>
+                    <span class="network-name">BSC</span>
+                </div>
+            </div>
+            
+            <div class="wallet-info-card">
+                <div class="wallet-header">
+                    <div class="wallet-icon">
+                        <span class="wallet-type-icon">
+                            <% if (user.walletType === 'metamask') { %>🦊
+                            <% } else if (user.walletType === 'trustwallet') { %>🛡️
+                            <% } else if (user.walletType === 'binancewallet') { %>🟡
+                            <% } else { %>💳<% } %>
+                        </span>
+                    </div>
+                    <div class="wallet-details">
+                        <div class="wallet-name">
+                            <%= user.walletType ? user.walletType.charAt(0).toUpperCase() + user.walletType.slice(1) : 'Wallet' %>
+                        </div>
+                        <div class="wallet-address" onclick="copyWalletAddress()">
+                            <span class="address-display">
+                                <%= user.walletAddress.substring(0, 6) %>....<%= user.walletAddress.substring(38) %>
+                            </span>
+                            <span class="copy-icon">📋</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="wallet-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Balance</span>
+                        <span class="stat-value" id="walletBalance">
+                            <span class="loading-dots">Loading...</span>
+                        </span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Network</span>
+                        <span class="stat-value">Binance Smart Chain</span>
+                    </div>
+                </div>
+                
+                <div class="wallet-actions">
+                    <button class="wallet-action-btn refresh" onclick="refreshWalletInfo()">
+                        <span class="action-icon">🔄</span>
+                        <span class="action-text">Refresh</span>
+                    </button>
+                    <button class="wallet-action-btn view" onclick="viewOnExplorer()">
+                        <span class="action-icon">🔍</span>
+                        <span class="action-text">View</span>
+                    </button>
+                    <button class="wallet-action-btn disconnect" onclick="disconnectWallet()">
+                        <span class="action-icon">🔌</span>
+                        <span class="action-text">Disconnect</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="action-group">
+                    <h4 class="action-group-title">Quick Actions</h4>
+                    <div class="action-buttons">
+                        <% if (!user.membership) { %>
+                            <a href="/membership/plans" class="quick-action-btn primary">
+                                <span class="btn-icon">🎯</span>
+                                <span class="btn-text">Join Membership</span>
+                            </a>
+                        <% } else { %>
+                            <a href="/membership/dashboard" class="quick-action-btn primary">
+                                <span class="btn-icon">📊</span>
+                                <span class="btn-text">Dashboard</span>
+                            </a>
+                        <% } %>
+                        
+                        <button class="quick-action-btn secondary" onclick="addUSDTToken()">
+                            <span class="btn-icon">💰</span>
+                            <span class="btn-text">Add USDT</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } else { %>
+        <!-- Wallet Not Connected State -->
+        <div class="wallet-disconnected-state">
+            <div class="connection-status">
+                <div class="status-indicator disconnected">
+                    <span class="status-dot"></span>
+                    <span class="status-text">No Wallet Connected</span>
+                </div>
+            </div>
+            
+            <div class="connect-prompt">
+                <div class="prompt-icon">🔗</div>
+                <h3 class="prompt-title">Connect Your Wallet</h3>
+                <p class="prompt-description">
+                    Connect your wallet to access membership features and start earning
+                </p>
+            </div>
+            
+            <!-- Wallet Options -->
+            <div class="wallet-options">
+                <div class="options-header">
+                    <h4>Choose Your Wallet</h4>
+                </div>
+                
+                <div class="wallet-grid">
+                    <div class="wallet-option" onclick="connectWallet('metamask')">
+                        <div class="wallet-option-icon">🦊</div>
+                        <div class="wallet-option-info">
+                            <div class="option-name">MetaMask</div>
+                            <div class="option-description">Browser extension & mobile</div>
+                        </div>
+                        <div class="option-status">
+                            <span class="status-badge" id="metamaskStatus">
+                                <span class="status-text">Available</span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="wallet-option" onclick="connectWallet('trustwallet')">
+                        <div class="wallet-option-icon">🛡️</div>
+                        <div class="wallet-option-info">
+                            <div class="option-name">Trust Wallet</div>
+                            <div class="option-description">Secure mobile wallet</div>
+                        </div>
+                        <div class="option-status">
+                            <span class="status-badge mobile">
+                                <span class="status-text">Mobile</span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="wallet-option" onclick="connectWallet('binancewallet')">
+                        <div class="wallet-option-icon">🟡</div>
+                        <div class="wallet-option-info">
+                            <div class="option-name">Binance Wallet</div>
+                            <div class="option-description">Binance Chain Wallet</div>
+                        </div>
+                        <div class="option-status">
+                            <span class="status-badge">
+                                <span class="status-text">Desktop</span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="wallet-option" onclick="connectWallet('walletconnect')">
+                        <div class="wallet-option-icon">🔗</div>
+                        <div class="wallet-option-info">
+                            <div class="option-name">WalletConnect</div>
+                            <div class="option-description">Scan with mobile wallet</div>
+                        </div>
+                        <div class="option-status">
+                            <span class="status-badge soon">
+                                <span class="status-text">Soon</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Help Section -->
+            <div class="wallet-help">
+                <div class="help-toggle" onclick="toggleWalletHelp()">
+                    <span class="help-icon">❓</span>
+                    <span class="help-text">Need help connecting?</span>
+                    <span class="toggle-arrow" id="helpToggleArrow">▼</span>
+                </div>
+                
+                <div class="help-content" id="walletHelpContent" style="display: none;">
+                    <div class="help-section">
+                        <h5>🦊 For MetaMask users:</h5>
+                        <ul>
+                            <li>Install MetaMask extension or mobile app</li>
+                            <li>Create or import your wallet</li>
+                            <li>Make sure you're on Binance Smart Chain</li>
+                            <li>Click connect and approve the connection</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h5>📱 For mobile users:</h5>
+                        <ul>
+                            <li>Open this app in your wallet's browser</li>
+                            <li>Trust Wallet: Use built-in DApp browser</li>
+                            <li>MetaMask Mobile: Use built-in browser</li>
+                            <li>Or use WalletConnect for any wallet</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="help-section">
+                        <h5>🔧 Common issues:</h5>
+                        <ul>
+                            <li>Wrong network: Switch to BSC (Chain ID: 56)</li>
+                            <li>Connection failed: Refresh page and try again</li>
+                            <li>No wallet: Download from official websites only</li>
+                            <li>Need help: Contact our support team</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Network Info -->
+            <div class="network-requirements">
+                <div class="network-header">
+                    <span class="network-icon">⚙️</span>
+                    <span class="network-title">Network Requirements</span>
+                </div>
+                <div class="network-details">
+                    <div class="network-item">
+                        <span class="item-label">Network:</span>
+                        <span class="item-value">Binance Smart Chain</span>
+                    </div>
+                    <div class="network-item">
+                        <span class="item-label">Chain ID:</span>
+                        <span class="item-value">56</span>
+                    </div>
+                    <div class="network-item">
+                        <span class="item-label">Currency:</span>
+                        <span class="item-value">BNB</span>
+                    </div>
+                    <div class="network-item">
+                        <span class="item-label">Required Token:</span>
+                        <span class="item-value">USDT (BEP20)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+    
+    <!-- Connection Status Modal -->
+    <div id="connectionModal" class="connection-modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="connection-status-display">
+                <div class="status-animation">
+                    <div class="status-icon" id="connectionStatusIcon">⏳</div>
+                    <div class="status-message" id="connectionStatusMessage">Connecting...</div>
+                </div>
+                <div class="connection-steps" id="connectionSteps">
+                    <div class="step active">
+                        <span class="step-number">1</span>
+                        <span class="step-text">Opening wallet...</span>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <span class="step-text">Approve connection</span>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <span class="step-text">Switch to BSC network</span>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <span class="step-text">Complete setup</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.wallet-connect-partial {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Connected State Styles */
+.wallet-connected-state {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    border: 1px solid #e1e5e9;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.connected .status-dot {
+    background: #28a745;
+}
+
+.status-indicator.disconnected .status-dot {
+    background: #dc3545;
+}
+
+.network-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.wallet-info-card {
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.wallet-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.wallet-details {
+    flex: 1;
+}
+
+.wallet-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--tg-theme-text-color);
+}
+
+.wallet-address {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    font-family: monospace;
+    font-size: 0.9rem;
+    color: var(--tg-theme-hint-color);
+}
+
+.wallet-address:hover {
+    background: var(--tg-theme-secondary-bg-color);
+}
+
+.copy-icon {
+    font-size: 0.8rem;
+}
+
+.wallet-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.loading-dots {
+    animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+    0%, 20% { content: 'Loading'; }
+    40% { content: 'Loading.'; }
+    60% { content: 'Loading..'; }
+    80%, 100% { content: 'Loading...'; }
+}
+
+.wallet-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.wallet-action-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
+}
+
+.wallet-action-btn:hover {
+    transform: translateY(-1px);
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.wallet-action-btn.disconnect:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.action-icon {
+    font-size: 1.2rem;
+}
+
+.quick-actions {
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.action-group-title {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.quick-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick-action-btn.primary {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.quick-action-btn.secondary {
+    background: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    border: 1px solid #e1e5e9;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Disconnected State Styles */
+.wallet-disconnected-state {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.connect-prompt {
+    text-align: center;
+    padding: 30px 20px;
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 16px;
+}
+
+.prompt-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.prompt-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--tg-theme-text-color);
+}
+
+.prompt-description {
+    color: var(--tg-theme-hint-color);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.wallet-options {
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.options-header h4 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.wallet-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.wallet-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--tg-theme-secondary-bg-color);
+}
+
+.wallet-option:hover {
+    border-color: var(--tg-theme-button-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-option-icon {
+    font-size: 2rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tg-theme-bg-color);
+    border-radius: 12px;
+}
+
+.wallet-option-info {
+    flex: 1;
+}
+
+.option-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+    color: var(--tg-theme-text-color);
+}
+
+.option-description {
+    font-size: 0.8rem;
+    color: var(--tg-theme-hint-color);
+}
+
+.option-status {
+    flex-shrink: 0;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.status-badge.mobile {
+    background: rgba(23, 162, 184, 0.1);
+    color: #17a2b8;
+}
+
+.status-badge.soon {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.wallet-help {
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.help-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-weight: 500;
+    color: var(--tg-theme-text-color);
+}
+
+.help-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.help-icon {
+    font-size: 1.2rem;
+}
+
+.help-text {
+    flex: 1;
+}
+
+.toggle-arrow {
+    transition: transform 0.3s ease;
+}
+
+.toggle-arrow.rotated {
+    transform: rotate(180deg);
+}
+
+.help-content {
+    padding: 0 16px 16px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.help-section {
+    margin-bottom: 16px;
+}
+
+.help-section h5 {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.help-section ul {
+    margin: 0;
+    padding-left: 16px;
+    color: var(--tg-theme-hint-color);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.help-section li {
+    margin-bottom: 4px;
+}
+
+.network-requirements {
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.network-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.network-details {
+    display: grid;
+    gap: 8px;
+}
+
+.network-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.item-label {
+    color: var(--tg-theme-hint-color);
+}
+
+.item-value {
+    font-weight: 500;
+    font-family: monospace;
+    color: var(--tg-theme-text-color);
+}
+
+/* Connection Modal */
+.connection-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position:. relative;
+    background: var(--tg-theme-bg-color);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.connection-status-display {
+    text-align: center;
+}
+
+.status-animation {
+    margin-bottom: 24px;
+}
+
+.status-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    animation: connectionPulse 1.5s infinite;
+}
+
+.status-message {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+@keyframes connectionPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.connection-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+.step.active {
+    opacity: 1;
+}
+
+.step.completed {
+    opacity: 1;
+    color: #28a745;
+}
+
+.step-number {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--tg-theme-hint-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.step.active .step-number {
+    background: var(--tg-theme-button-color);
+}
+
+.step.completed .step-number {
+    background: #28a745;
+}
+
+.step-text {
+    font-size: 0.9rem;
+    color: var(--tg-theme-text-color);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .wallet-connect-partial {
+        padding: 0 16px;
+    }
+    
+    .wallet-info-card {
+        padding: 16px;
+    }
+    
+    .wallet-stats {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .wallet-actions {
+        flex-direction: column;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        padding: 20px;
+    }
+}
+
+/* Dark Theme */
+[data-theme="dark"] .wallet-info-card,
+[data-theme="dark"] .connect-prompt,
+[data-theme="dark"] .wallet-options,
+[data-theme="dark"] .network-requirements {
+    border-color: #333333;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .wallet-header {
+    border-bottom-color: #333333;
+}
+
+[data-theme="dark"] .wallet-option {
+    border-color: #333333;
+    background: #2a2a2a;
+}
+
+[data-theme="dark"] .wallet-option:hover {
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .help-toggle:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+</style>
+
+<script>
+// Copy wallet address
+async function copyWalletAddress() {
+    const address = '<%= (typeof user !== 'undefined' && user && user.walletAddress) ? user.walletAddress : '' %>';
+    
+    if (!address) return;
+    
+    try {
+        await navigator.clipboard.writeText(address);
+        
+        // Visual feedback
+        const addressElement = document.querySelector('.wallet-address');
+        addressElement.style.background = '#28a745';
+        addressElement.style.color = 'white';
+        
+        setTimeout(() => {
+            addressElement.style.background = '';
+            addressElement.style.color = '';
+        }, 1000);
+        
+        // Haptic feedback
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+        }
+        
+        // Show notification
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Wallet address copied!');
+        } else {
+            alert('Wallet address copied!');
+        }
+        
+    } catch (error) {
+        // Fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = address;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Wallet address copied!');
+        } else {
+            alert('Wallet address copied!');
+        }
+    }
+}
+
+// Refresh wallet info
+async function refreshWalletInfo() {
+    const refreshBtn = document.querySelector('.wallet-action-btn.refresh');
+    const balanceElement = document.getElementById('walletBalance');
+    
+    // Add loading state
+    refreshBtn.style.opacity = '0.5';
+    refreshBtn.style.pointerEvents = 'none';
+    
+    if (balanceElement) {
+        balanceElement.innerHTML = '<span class="loading-dots">Loading...</span>';
+    }
+    
+    try {
+        // Simulate API call or web3 call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        if (balanceElement) {
+            balanceElement.textContent = '0.00 BNB';
+        }
+        
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        }
+        
+    } catch (error) {
+        console.error('Error refreshing wallet info:', error);
+        if (balanceElement) {
+            balanceElement.textContent = 'Error loading';
+        }
+    } finally {
+        refreshBtn.style.opacity = '';
+        refreshBtn.style.pointerEvents = '';
+    }
+}
+
+// View on explorer
+function viewOnExplorer() {
+    const address = '<%= (typeof user !== 'undefined' && user && user.walletAddress) ? user.walletAddress : '' %>';
+    
+    if (!address) return;
+    
+    const explorerUrl = `https://bscscan.com/address/${address}`;
+    
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.openLink(explorerUrl);
+    } else {
+        window.open(explorerUrl, '_blank');
+    }
+    
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+}
+
+// Disconnect wallet
+async function disconnectWallet() {
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showConfirm(
+            'Are you sure you want to disconnect your wallet?',
+            async (confirmed) => {
+                if (confirmed) {
+                    await performDisconnect();
+                }
+            }
+        );
+    } else {
+        if (confirm('Are you sure you want to disconnect your wallet?')) {
+            await performDisconnect();
+        }
+    }
+}
+
+async function performDisconnect() {
+    try {
+        const response = await fetch('/wallet/api/disconnect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.showAlert('Wallet disconnected successfully');
+            } else {
+                alert('Wallet disconnected successfully');
+            }
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        }
+    } catch (error) {
+        console.error('Error disconnecting wallet:', error);
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Error disconnecting wallet');
+        } else {
+            alert('Error disconnecting wallet');
+        }
+    }
+}
+
+// Add USDT token
+async function addUSDTToken() {
+    if (typeof window.ethereum === 'undefined') {
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Please use a Web3 wallet to add tokens');
+        } else {
+            alert('Please use a Web3 wallet to add tokens');
+        }
+        return;
+    }
+    
+    try {
+        await window.ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+                type: 'ERC20',
+                options: {
+                    address: '<%= process.env.USDT_CONTRACT_ADDRESS || '0x55d398326f99059fF775485246999027B3197955' %>',
+                    symbol: 'USDT',
+                    decimals: 18,
+                    image: 'https://coin-images.coingecko.com/coins/images/325/thumb/Tether-logo.png'
+                }
+            }
+        });
+        
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('USDT token added to wallet!');
+        } else {
+            alert('USDT token added to wallet!');
+        }
+        
+    } catch (error) {
+        console.error('Error adding USDT token:', error);
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Error adding USDT token');
+        } else {
+            alert('Error adding USDT token');
+        }
+    }
+}
+
+// Connect wallet
+async function connectWallet(walletType) {
+    showConnectionModal();
+    
+    try {
+        let success = false;
+        
+        switch (walletType) {
+            case 'metamask':
+                success = await connectMetaMask();
+                break;
+            case 'trustwallet':
+                success = await connectTrustWallet();
+                break;
+            case 'binancewallet':
+                success = await connectBinanceWallet();
+                break;
+            case 'walletconnect':
+                throw new Error('WalletConnect coming soon!');
+            default:
+                throw new Error('Unsupported wallet type');
+        }
+        
+        if (success) {
+            updateConnectionStatus('success', '✅', 'Connected successfully!');
+            setTimeout(() => {
+                hideConnectionModal();
+                window.location.reload();
+            }, 2000);
+        }
+        
+    } catch (error) {
+        console.error('Connection error:', error);
+        updateConnectionStatus('error', '❌', 'Connection failed');
+        
+        setTimeout(() => {
+            hideConnectionModal();
+        }, 3000);
+        
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert(`Connection failed: ${error.message}`);
+        }
+    }
+}
+
+// Connection methods (simplified versions)
+async function connectMetaMask() {
+    if (typeof window.ethereum === 'undefined') {
+        throw new Error('MetaMask not installed');
+    }
+    
+    updateConnectionStep(1);
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    
+    updateConnectionStep(2);
+    // Network switching logic here
+    
+    updateConnectionStep(3);
+    // Save to backend
+    
+    updateConnectionStep(4);
+    return accounts.length > 0;
+}
+
+async function connectTrustWallet() {
+    const deepLink = `https://link.trustwallet.com/open_url?coin_id=20000714&url=${encodeURIComponent(window.location.href)}`;
+    window.open(deepLink, '_blank');
+    throw new Error('Please open this app in Trust Wallet browser');
+}
+
+async function connectBinanceWallet() {
+    if (typeof window.BinanceChain === 'undefined') {
+        throw new Error('Binance Chain Wallet not installed');
+    }
+    
+    const accounts = await window.BinanceChain.request({ method: 'eth_requestAccounts' });
+    return accounts.length > 0;
+}
+
+// Connection modal functions
+function showConnectionModal() {
+    const modal = document.getElementById('connectionModal');
+    modal.style.display = 'flex';
+    
+    // Reset steps
+    const steps = modal.querySelectorAll('.step');
+    steps.forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (index === 0) step.classList.add('active');
+    });
+}
+
+function hideConnectionModal() {
+    document.getElementById('connectionModal').style.display = 'none';
+}
+
+function updateConnectionStatus(type, icon, message) {
+    document.getElementById('connectionStatusIcon').textContent = icon;
+    document.getElementById('connectionStatusMessage').textContent = message;
+}
+
+function updateConnectionStep(stepNumber) {
+    const steps = document.querySelectorAll('.step');
+    steps.forEach((step, index) => {
+        step.classList.remove('active');
+        if (index < stepNumber - 1) {
+            step.classList.add('completed');
+        } else if (index === stepNumber - 1) {
+            step.classList.add('active');
+        }
+    });
+}
+
+// Toggle wallet help
+function toggleWalletHelp() {
+    const helpContent = document.getElementById('walletHelpContent');
+    const toggleArrow = document.getElementById('helpToggleArrow');
+    
+    if (helpContent.style.display === 'none') {
+        helpContent.style.display = 'block';
+        toggleArrow.classList.add('rotated');
+    } else {
+        helpContent.style.display = 'none';
+        toggleArrow.classList.remove('rotated');
+    }
+    
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+}
+
+// Check wallet availability on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check MetaMask availability
+    const metamaskStatus = document.getElementById('metamaskStatus');
+    if (metamaskStatus) {
+        if (typeof window.ethereum !== 'undefined') {
+            metamaskStatus.innerHTML = '<span class="status-text">Available</span>';
+            metamaskStatus.className = 'status-badge';
+        } else {
+            metamaskStatus.innerHTML = '<span class="status-text">Install</span>';
+            metamaskStatus.className = 'status-badge soon';
+        }
+    }
+    
+    // Add haptic feedback to interactive elements
+    const interactiveElements = document.querySelectorAll(
+        '.wallet-option, .wallet-action-btn, .quick-action-btn, .wallet-address, .help-toggle'
+    );
+    
+    interactiveElements.forEach(element => {
+        element.addEventListener('click', function() {
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+        });
+    });
+    
+    // Close connection modal on overlay click
+    const modal = document.getElementById('connectionModal');
+    const overlay = modal?.querySelector('.modal-overlay');
+    
+    if (overlay) {
+        overlay.addEventListener('click', hideConnectionModal);
+    }
+    
+    // Auto-refresh wallet balance if connected
+    if (document.querySelector('.wallet-connected-state')) {
+        setTimeout(refreshWalletInfo, 2000);
+    }
+});
+
+// Export functions for global use
+window.walletConnectActions = {
+    copyAddress: copyWalletAddress,
+    refresh: refreshWalletInfo,
+    viewOnExplorer: viewOnExplorer,
+    disconnect: disconnectWallet,
+    addUSDT: addUSDTToken,
+    connect: connectWallet,
+    toggleHelp: toggleWalletHelp
+};
+</script>

@@ -1,0 +1,1472 @@
+<!-- views/components/stats-card.ejs -->
+<div class="stats-card-component">
+    <% if (typeof membership !== 'undefined' && membership) { %>
+        <!-- Member Stats Section -->
+        <div class="member-stats-section">
+            <div class="stats-header">
+                <div class="header-icon">📊</div>
+                <div class="header-content">
+                    <h3 class="stats-title">Your Performance</h3>
+                    <p class="stats-subtitle">Track your membership statistics</p>
+                </div>
+                <button class="refresh-stats-btn" onclick="refreshMemberStats()" title="Refresh Statistics">
+                    <span class="refresh-icon">🔄</span>
+                </button>
+            </div>
+
+            <!-- Main Stats Grid -->
+            <div class="main-stats-grid">
+                <!-- Total Earnings Card -->
+                <div class="stat-card earnings-card">
+                    <div class="card-header">
+                        <div class="stat-icon">💰</div>
+                        <div class="card-actions">
+                            <button class="action-dot" onclick="showEarningsDetails()">⋯</button>
+                        </div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">
+                            <span class="value-number" data-target="<%= (parseInt(membership.totalEarnings || 0) / 1000000) %>">
+                                0.00
+                            </span>
+                            <span class="value-unit">USDT</span>
+                        </div>
+                        <div class="stat-label">Total Earnings</div>
+                        <div class="stat-trend positive">
+                            <span class="trend-icon">📈</span>
+                            <span class="trend-text">+12.5% this month</span>
+                        </div>
+                    </div>
+                    <div class="progress-indicator">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                        <span class="progress-text">65% to next milestone</span>
+                    </div>
+                </div>
+
+                <!-- Referrals Card -->
+                <div class="stat-card referrals-card">
+                    <div class="card-header">
+                        <div class="stat-icon">👥</div>
+                        <div class="card-actions">
+                            <button class="action-dot" onclick="showReferralsDetails()">⋯</button>
+                        </div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">
+                            <span class="value-number" data-target="<%= membership.totalReferrals || 0 %>">
+                                0
+                            </span>
+                        </div>
+                        <div class="stat-label">Total Referrals</div>
+                        <div class="stat-trend positive">
+                            <span class="trend-icon">👆</span>
+                            <span class="trend-text">+3 this week</span>
+                        </div>
+                    </div>
+                    <div class="referral-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Active</span>
+                            <span class="breakdown-value"><%= membership.totalReferrals || 0 %></span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">This Month</span>
+                            <span class="breakdown-value">3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Plan Card -->
+                <div class="stat-card plan-card">
+                    <div class="card-header">
+                        <div class="stat-icon">🎯</div>
+                        <div class="plan-tier-badge tier-<%= Math.ceil(membership.planId / 4) %>">
+                            <% if (membership.planId <= 4) { %>
+                                <span class="tier-icon">🌟</span>
+                                <span class="tier-name">Starter</span>
+                            <% } else if (membership.planId <= 8) { %>
+                                <span class="tier-icon">💎</span>
+                                <span class="tier-name">Premium</span>
+                            <% } else if (membership.planId <= 12) { %>
+                                <span class="tier-icon">👑</span>
+                                <span class="tier-name">Elite</span>
+                            <% } else { %>
+                                <span class="tier-icon">🔥</span>
+                                <span class="tier-name">Infinity</span>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">
+                            <span class="value-number">Level <%= membership.planId %></span>
+                        </div>
+                        <div class="stat-label">Current Plan</div>
+                        <div class="stat-trend neutral">
+                            <span class="trend-icon">📅</span>
+                            <span class="trend-text">Since <%= new Date(membership.registeredAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></span>
+                        </div>
+                    </div>
+                    <div class="upgrade-hint">
+                        <% if (membership.planId < 16) { %>
+                            <a href="/membership/plans" class="upgrade-link">
+                                <span class="upgrade-icon">⬆️</span>
+                                <span class="upgrade-text">Upgrade Available</span>
+                            </a>
+                        <% } else { %>
+                            <div class="max-level">
+                                <span class="max-icon">🏆</span>
+                                <span class="max-text">Maximum Level</span>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Cycle & Commission Card -->
+                <div class="stat-card cycle-card">
+                    <div class="card-header">
+                        <div class="stat-icon">🔄</div>
+                        <div class="commission-rate">
+                            <% 
+                            const planId = membership.planId || 1;
+                            let rate = '10%';
+                            if (planId >= 13) rate = '25%';
+                            else if (planId >= 9) rate = '20%';
+                            else if (planId >= 5) rate = '15%';
+                            %>
+                            <span class="rate-value"><%= rate %></span>
+                            <span class="rate-label">Rate</span>
+                        </div>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">
+                            <span class="value-number">#<%= membership.cycleNumber || 1 %></span>
+                        </div>
+                        <div class="stat-label">Current Cycle</div>
+                        <div class="stat-trend neutral">
+                            <span class="trend-icon">⚡</span>
+                            <span class="trend-text">Active Status</span>
+                        </div>
+                    </div>
+                    <div class="cycle-info">
+                        <div class="cycle-progress">
+                            <span class="progress-label">Cycle Progress</span>
+                            <div class="cycle-bar">
+                                <div class="cycle-fill" style="width: 40%"></div>
+                            </div>
+                            <span class="progress-percentage">40%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Stats -->
+            <div class="secondary-stats">
+                <div class="secondary-stat-item">
+                    <div class="secondary-icon">🎨</div>
+                    <div class="secondary-content">
+                        <div class="secondary-label">NFT Token</div>
+                        <div class="secondary-value">
+                            <% if (membership.tokenId) { %>
+                                #<%= membership.tokenId %>
+                            <% } else { %>
+                                <span class="minting">Minting...</span>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="secondary-stat-item">
+                    <div class="secondary-icon">⏱️</div>
+                    <div class="secondary-content">
+                        <div class="secondary-label">Last Activity</div>
+                        <div class="secondary-value">
+                            <%= new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="secondary-stat-item">
+                    <div class="secondary-icon">🔗</div>
+                    <div class="secondary-content">
+                        <div class="secondary-label">Network</div>
+                        <div class="secondary-value">BSC</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="member-actions">
+                <button class="member-action-btn primary" onclick="navigateToUpgrade()">
+                    <span class="action-icon">⬆️</span>
+                    <span class="action-text">Upgrade Plan</span>
+                </button>
+                <button class="member-action-btn secondary" onclick="openReferralTool()">
+                    <span class="action-icon">🔗</span>
+                    <span class="action-text">Share & Earn</span>
+                </button>
+                <button class="member-action-btn secondary" onclick="viewEarningsHistory()">
+                    <span class="action-icon">📊</span>
+                    <span class="action-text">View History</span>
+                </button>
+            </div>
+        </div>
+    <% } else { %>
+        <!-- Visitor Stats Section -->
+        <div class="visitor-stats-section">
+            <div class="stats-header">
+                <div class="header-icon">🚀</div>
+                <div class="header-content">
+                    <h3 class="stats-title">Platform Overview</h3>
+                    <p class="stats-subtitle">Join our growing community</p>
+                </div>
+            </div>
+
+            <!-- Platform Stats Grid -->
+            <div class="platform-stats-grid">
+                <div class="platform-stat-card members">
+                    <div class="platform-icon">👥</div>
+                    <div class="platform-content">
+                        <div class="platform-value">
+                            <span class="count-number" data-target="<%= (typeof systemStats !== 'undefined' && systemStats) ? parseInt(systemStats.totalMembers) : 1250 %>">
+                                0
+                            </span>
+                        </div>
+                        <div class="platform-label">Active Members</div>
+                        <div class="platform-growth">
+                            <span class="growth-icon">📈</span>
+                            <span class="growth-text">+15% this month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="platform-stat-card volume">
+                    <div class="platform-icon">💰</div>
+                    <div class="platform-content">
+                        <div class="platform-value">
+                            <span class="count-number" data-target="<%= (typeof systemStats !== 'undefined' && systemStats) ? (parseInt(systemStats.totalRevenue) / 1000000) : 850 %>">
+                                0
+                            </span>
+                            <span class="value-suffix">K</span>
+                        </div>
+                        <div class="platform-label">Total Volume (USDT)</div>
+                        <div class="platform-growth">
+                            <span class="growth-icon">💎</span>
+                            <span class="growth-text">All time high</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="platform-stat-card levels">
+                    <div class="platform-icon">🎯</div>
+                    <div class="platform-content">
+                        <div class="platform-value">
+                            <span class="count-number">16</span>
+                        </div>
+                        <div class="platform-label">Membership Levels</div>
+                        <div class="platform-growth">
+                            <span class="growth-icon">🌟</span>
+                            <span class="growth-text">From $1 to $16</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="platform-stat-card commissions">
+                    <div class="platform-icon">🏆</div>
+                    <div class="platform-content">
+                        <div class="platform-value">
+                            <span class="count-number" data-target="<%= (typeof systemStats !== 'undefined' && systemStats) ? (parseInt(systemStats.totalCommission) / 1000000) : 95 %>">
+                                0
+                            </span>
+                            <span class="value-suffix">K</span>
+                        </div>
+                        <div class="platform-label">Paid Commissions</div>
+                        <div class="platform-growth">
+                            <span class="growth-icon">💸</span>
+                            <span class="growth-text">Instant payouts</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Benefits Preview -->
+            <div class="benefits-preview">
+                <h4 class="benefits-title">Why Join Our Community?</h4>
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🎨</div>
+                        <div class="benefit-text">Unique NFT Cards</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">💰</div>
+                        <div class="benefit-text">Earn Commissions</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📈</div>
+                        <div class="benefit-text">Level Progression</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔒</div>
+                        <div class="benefit-text">Secure & Transparent</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="visitor-cta">
+                <div class="cta-content">
+                    <h4 class="cta-title">Ready to Get Started?</h4>
+                    <p class="cta-description">Join thousands of members earning daily commissions</p>
+                    <div class="cta-actions">
+                        <a href="/membership/plans" class="cta-btn primary">
+                            <span class="btn-icon">🎯</span>
+                            <span class="btn-text">Choose Your Plan</span>
+                        </a>
+                        <a href="/wallet/connect" class="cta-btn secondary">
+                            <span class="btn-icon">🔗</span>
+                            <span class="btn-text">Connect Wallet</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<style>
+.stats-card-component {
+    width: 100%;
+    margin: 20px 0;
+}
+
+/* Common Header Styles */
+.stats-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.header-icon {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header-content {
+    flex: 1;
+}
+
+.stats-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: var(--tg-theme-text-color);
+}
+
+.stats-subtitle {
+    font-size: 0.9rem;
+    color: var(--tg-theme-hint-color);
+    margin: 0;
+    font-weight: 500;
+}
+
+.refresh-stats-btn {
+    background: var(--tg-theme-secondary-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.refresh-stats-btn:hover {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    border-color: var(--tg-theme-button-color);
+}
+
+.refresh-icon {
+    font-size: 1.2rem;
+    display: block;
+    animation: rotate 2s linear infinite paused;
+}
+
+.refresh-stats-btn.loading .refresh-icon {
+    animation-play-state: running;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Member Stats Styles */
+.member-stats-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.main-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.stat-card {
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.stat-icon {
+    font-size: 2.2rem;
+    opacity: 0.9;
+}
+
+.action-dot {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--tg-theme-hint-color);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.action-dot:hover {
+    background: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
+}
+
+.stat-content {
+    margin-bottom: 16px;
+}
+
+.stat-value {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.value-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--tg-theme-text-color);
+    line-height: 1;
+    background: linear-gradient(135deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.value-unit {
+    font-size: 1rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 600;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.stat-trend.positive {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.stat-trend.negative {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.stat-trend.neutral {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
+}
+
+.trend-icon {
+    font-size: 0.75rem;
+}
+
+/* Specific Card Styles */
+.earnings-card {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.02) 0%, rgba(32, 201, 151, 0.02) 100%);
+}
+
+.referrals-card {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.02) 0%, rgba(102, 16, 242, 0.02) 100%);
+}
+
+.plan-card {
+    background: linear-gradient(135deg, rgba(111, 66, 193, 0.02) 0%, rgba(253, 126, 20, 0.02) 100%);
+}
+
+.cycle-card {
+    background: linear-gradient(135deg, rgba(32, 201, 151, 0.02) 0%, rgba(233, 30, 99, 0.02) 100%);
+}
+
+/* Progress Indicators */
+.progress-indicator {
+    margin-top: 12px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    border-radius: 3px;
+    transition: width 0.8s ease;
+}
+
+.progress-text {
+    font-size: 0.75rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+/* Plan Card Specific */
+.plan-tier-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.plan-tier-badge.tier-1 {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+    color: #d63031;
+}
+
+.plan-tier-badge.tier-2 {
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    color: white;
+}
+
+.plan-tier-badge.tier-3 {
+    background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+    color: white;
+}
+
+.plan-tier-badge.tier-4 {
+    background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+    color: white;
+}
+
+.upgrade-hint {
+    margin-top: 12px;
+}
+
+.upgrade-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: var(--tg-theme-button-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.upgrade-link:hover {
+    transform: translateX(3px);
+}
+
+.max-level {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #28a745;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* Cycle Card Specific */
+.commission-rate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.rate-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--tg-theme-button-color);
+    line-height: 1;
+}
+
+.rate-label {
+    font-size: 0.7rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.cycle-info {
+    margin-top: 12px;
+}
+
+.cycle-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.progress-label {
+    font-size: 0.75rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.cycle-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.cycle-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fd7e14 0%, #28a745 100%);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+}
+
+.progress-percentage {
+    font-size: 0.75rem;
+    color: var(--tg-theme-text-color);
+    font-weight: 600;
+    align-self: flex-end;
+}
+
+/* Referrals Card Specific */
+.referral-breakdown {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.breakdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.breakdown-label {
+    font-size: 0.7rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.breakdown-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--tg-theme-text-color);
+}
+
+/* Secondary Stats */
+.secondary-stats {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    border: 1px solid #e1e5e9;
+}
+
+.secondary-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.secondary-icon {
+    font-size: 1.5rem;
+    opacity: 0.8;
+}
+
+.secondary-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.secondary-label {
+    font-size: 0.75rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.secondary-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+.minting {
+    color: #ffc107;
+    font-style: italic;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.6; }
+}
+
+/* Member Actions */
+.member-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.member-action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.member-action-btn.primary {
+    background: linear-gradient(135deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    color: white;
+}
+
+.member-action-btn.secondary {
+    background: var(--tg-theme-secondary-bg-color);
+    color: var(--tg-theme-text-color);
+    border: 1px solid #e1e5e9;
+}
+
+.member-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Platform Stats Styles */
+.visitor-stats-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.platform-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.platform-stat-card {
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.platform-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.platform-stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.platform-stat-card:hover::before {
+    transform: scaleX(1);
+}
+
+.platform-icon {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+    opacity: 0.9;
+}
+
+.platform-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.platform-value {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 4px;
+}
+
+.count-number {
+    font-size: 2.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.value-suffix {
+    font-size: 1.2rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 700;
+}
+
+.platform-label {
+    font-size: 1rem;
+    color: var(--tg-theme-text-color);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.platform-growth {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 0 auto;
+    width: fit-content;
+}
+
+.growth-icon {
+    font-size: 0.75rem;
+}
+
+/* Benefits Preview */
+.benefits-preview {
+    background: var(--tg-theme-bg-color);
+    border: 1px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.benefits-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    color: var(--tg-theme-text-color);
+    text-align: center;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+.benefit-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.benefit-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.benefit-icon {
+    font-size: 1.8rem;
+}
+
+.benefit-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+}
+
+/* Visitor CTA */
+.visitor-cta {
+    background: linear-gradient(135deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.visitor-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    pointer-events: none;
+}
+
+.cta-content {
+    position: relative;
+    z-index: 2;
+}
+
+.cta-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cta-description {
+    font-size: 1rem;
+    margin: 0 0 24px 0;
+    opacity: 0.95;
+    font-weight: 500;
+}
+
+.cta-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 0.95rem;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.cta-btn.primary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.cta-btn.secondary {
+    background: rgba(0, 0, 0, 0.15);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cta-btn.primary:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.cta-btn.secondary:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* Animations */
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.value-number, .count-number {
+    animation: countUp 0.8s ease-out;
+}
+
+/* Card Animation Delays */
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+.platform-stat-card:nth-child(1) { animation-delay: 0.1s; }
+.platform-stat-card:nth-child(2) { animation-delay: 0.2s; }
+.platform-stat-card:nth-child(3) { animation-delay: 0.3s; }
+.platform-stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* Loading States */
+.loading-shimmer {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: shimmer 1.8s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-stats-grid,
+    .platform-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .secondary-stats {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .member-actions {
+        flex-direction: column;
+    }
+    
+    .benefits-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .cta-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-btn {
+        width: 100%;
+        max-width: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-header {
+        padding: 16px;
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .stat-card,
+    .platform-stat-card {
+        padding: 16px;
+    }
+    
+    .value-number,
+    .count-number {
+        font-size: 1.8rem;
+    }
+    
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .visitor-cta {
+        padding: 24px 16px;
+    }
+}
+
+/* Dark Theme */
+[data-theme="dark"] .stats-header,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .platform-stat-card,
+[data-theme="dark"] .benefits-preview {
+    border-color: #333333;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .stat-card:hover,
+[data-theme="dark"] .platform-stat-card:hover {
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .secondary-stats {
+    background: #2a2a2a;
+}
+
+[data-theme="dark"] .benefit-item {
+    background: #2a2a2a;
+}
+
+[data-theme="dark"] .referral-breakdown {
+    border-top-color: #333333;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .stat-card,
+    .platform-stat-card,
+    .benefit-item,
+    .member-action-btn,
+    .cta-btn {
+        transition: none;
+    }
+    
+    .refresh-icon,
+    .loading-shimmer::after {
+        animation: none;
+    }
+    
+    .stat-card:hover,
+    .platform-stat-card:hover {
+        transform: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .stats-card-component {
+        break-inside: avoid;
+    }
+    
+    .refresh-stats-btn,
+    .member-actions,
+    .cta-actions {
+        display: none;
+    }
+}
+</style>
+
+<script>
+// Counter Animation Function
+function animateCounters() {
+    const counters = document.querySelectorAll('[data-target]');
+    
+    counters.forEach(counter => {
+        const target = parseFloat(counter.dataset.target);
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            if (current < target) {
+                current += step;
+                if (counter.textContent.includes('.')) {
+                    counter.textContent = current.toFixed(2);
+                } else {
+                    counter.textContent = Math.floor(current).toLocaleString();
+                }
+                requestAnimationFrame(updateCounter);
+            } else {
+                if (counter.textContent.includes('.')) {
+                    counter.textContent = target.toFixed(2);
+                } else {
+                    counter.textContent = target.toLocaleString();
+                }
+            }
+        };
+        
+        updateCounter();
+    });
+}
+
+// Refresh Member Stats
+async function refreshMemberStats() {
+    const refreshBtn = document.querySelector('.refresh-stats-btn');
+    const statCards = document.querySelectorAll('.stat-card');
+    
+    refreshBtn.classList.add('loading');
+    statCards.forEach(card => card.classList.add('loading-shimmer'));
+    
+    try {
+        const response = await fetch('/api/membership/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+            // Trigger haptic feedback
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            }
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            throw new Error('Refresh failed');
+        }
+    } catch (error) {
+        console.error('Error refreshing stats:', error);
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Error refreshing statistics');
+        } else {
+            alert('Error refreshing statistics');
+        }
+    } finally {
+        setTimeout(() => {
+            refreshBtn.classList.remove('loading');
+            statCards.forEach(card => card.classList.remove('loading-shimmer'));
+        }, 2000);
+    }
+}
+
+// Show Earnings Details
+function showEarningsDetails() {
+    const earnings = '<%= (typeof membership !== 'undefined' && membership) ? (parseInt(membership.totalEarnings || 0) / 1000000).toFixed(2) : 0 %>';
+    const message = `💰 Total Earnings: ${earnings} USDT\n\n• Commission earnings: Real-time payouts\n• Cycle rewards: Automatic distribution\n• Referral bonuses: Instant payments`;
+    
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert(message);
+    } else {
+        alert(message);
+    }
+    
+    triggerHaptic('light');
+}
+
+// Show Referrals Details
+function showReferralsDetails() {
+    const referrals = '<%= (typeof membership !== 'undefined' && membership) ? membership.totalReferrals || 0 : 0 %>';
+    const message = `👥 Total Referrals: ${referrals}\n\n• Active referrals: All levels included\n• Commission rate: Based on your level\n• Growth this month: +3 new members`;
+    
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.showAlert(message);
+    } else {
+        alert(message);
+    }
+    
+    triggerHaptic('light');
+}
+
+// Navigation Functions
+function navigateToUpgrade() {
+    triggerHaptic('medium');
+    window.location.href = '/membership/plans';
+}
+
+function openReferralTool() {
+    triggerHaptic('light');
+    if (typeof showReferralModal === 'function') {
+        showReferralModal();
+    } else {
+        window.location.href = '/referrals';
+    }
+}
+
+function viewEarningsHistory() {
+    triggerHaptic('light');
+    window.location.href = '/earnings/history';
+}
+
+// Haptic Feedback Helper
+function triggerHaptic(type = 'light') {
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        switch (type) {
+            case 'light':
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                break;
+            case 'medium':
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                break;
+            case 'heavy':
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+                break;
+            case 'success':
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                break;
+            case 'error':
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+                break;
+        }
+    }
+}
+
+// Initialize Component
+document.addEventListener('DOMContentLoaded', function() {
+    // Start counter animations when component is visible
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
+    
+    const statsComponent = document.querySelector('.stats-card-component');
+    if (statsComponent) {
+        observer.observe(statsComponent);
+    }
+    
+    // Add haptic feedback to interactive elements
+    const interactiveElements = document.querySelectorAll(
+        '.refresh-stats-btn, .action-dot, .member-action-btn, .cta-btn, .upgrade-link, .benefit-item'
+    );
+    
+    interactiveElements.forEach(element => {
+        element.addEventListener('click', () => triggerHaptic('light'));
+    });
+    
+    // Card hover effects for non-touch devices
+    if (window.matchMedia('(hover: hover)').matches) {
+        const cards = document.querySelectorAll('.stat-card, .platform-stat-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-6px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
+        });
+    }
+    
+    // Auto-refresh every 5 minutes for member stats
+    if (document.querySelector('.member-stats-section')) {
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                refreshMemberStats();
+            }
+        }, 5 * 60 * 1000);
+    }
+    
+    // Progressive loading effect
+    const cards = document.querySelectorAll('.stat-card, .platform-stat-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.animation = `fadeInUp 0.6s ease-out ${index * 0.1}s forwards`;
+    });
+});
+
+// CSS Animation for Progressive Loading
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Export functions for external use
+window.statsCardActions = {
+    refresh: refreshMemberStats,
+    showEarnings: showEarningsDetails,
+    showReferrals: showReferralsDetails,
+    navigateUpgrade: navigateToUpgrade,
+    openReferrals: openReferralTool,
+    viewHistory: viewEarningsHistory
+};
+</script>

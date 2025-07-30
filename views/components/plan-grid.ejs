@@ -1,0 +1,568 @@
+<!-- views/components/plan-grid.ejs -->
+<div class="plans-grid-component">
+    <% if (typeof plans !== 'undefined' && plans && plans.length > 0) { %>
+        <div class="plans-grid">
+            <% plans.forEach((plan, index) => { %>
+                <% 
+                    const isOwned = userMembership && userMembership.planId >= plan.id;
+                    const isAvailable = !userMembership || plan.id === userMembership.planId + 1 || plan.id === 1;
+                    const isLocked = !isAvailable && !isOwned;
+                    const tierClass = plan.id <= 4 ? 'starter' : plan.id <= 8 ? 'premium' : plan.id <= 12 ? 'elite' : 'infinity';
+                %>
+                
+                <div class="plan-card <%= tierClass %> <%= isOwned ? 'owned' : '' %> <%= isAvailable ? 'available' : '' %> <%= isLocked ? 'locked' : '' %>"
+                     data-plan-id="<%= plan.id %>">
+                    
+                    <!-- Plan Badge -->
+                    <div class="plan-badge">
+                        <% if (isOwned) { %>
+                            <span class="badge owned">✓ Owned</span>
+                        <% } else if (isAvailable) { %>
+                            <span class="badge available">Available</span>
+                        <% } else { %>
+                            <span class="badge locked">🔒 Locked</span>
+                        <% } %>
+                    </div>
+                    
+                    <!-- Plan Header -->
+                    <div class="plan-header">
+                        <div class="plan-icon">
+                            <% if (plan.id <= 4) { %>
+                                <span class="tier-icon starter">🌟</span>
+                            <% } else if (plan.id <= 8) { %>
+                                <span class="tier-icon premium">💎</span>
+                            <% } else if (plan.id <= 12) { %>
+                                <span class="tier-icon elite">👑</span>
+                            <% } else { %>
+                                <span class="tier-icon infinity">🔥</span>
+                            <% } %>
+                        </div>
+                        <h3 class="plan-name"><%= plan.name %></h3>
+                        <span class="plan-level">Level <%= plan.id %></span>
+                    </div>
+
+                    <!-- Plan Price -->
+                    <div class="plan-price">
+                        <span class="amount">$<%= plan.priceUSDT %></span>
+                        <span class="currency">USDT</span>
+                    </div>
+
+                    <!-- Plan Stats -->
+                    <div class="plan-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Members/Cycle</span>
+                            <span class="stat-value"><%= plan.membersPerCycle %></span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Current Cycle</span>
+                            <span class="stat-value">#<%= plan.currentCycle || 1 %></span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Progress</span>
+                            <span class="stat-value">
+                                <%= plan.membersInCurrentCycle || 0 %>/<%= plan.membersPerCycle %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Plan Benefits -->
+                    <div class="plan-benefits">
+                        <div class="benefit-item">
+                            <span class="benefit-icon">🎨</span>
+                            <span class="benefit-text">Unique NFT Card</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">💰</span>
+                            <span class="benefit-text">Referral Commissions</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">⬆️</span>
+                            <span class="benefit-text">Upgrade Path</span>
+                        </div>
+                        <% if (plan.id > 8) { %>
+                            <div class="benefit-item premium">
+                                <span class="benefit-icon">✨</span>
+                                <span class="benefit-text">Premium Benefits</span>
+                            </div>
+                        <% } %>
+                        <% if (plan.id > 12) { %>
+                            <div class="benefit-item elite">
+                                <span class="benefit-icon">👑</span>
+                                <span class="benefit-text">Elite Status</span>
+                            </div>
+                        <% } %>
+                    </div>
+
+                    <!-- Plan Button -->
+                    <div class="plan-action">
+                        <% if (isOwned) { %>
+                            <button class="plan-button owned" disabled>
+                                <span class="btn-icon">✓</span>
+                                <span class="btn-text">Owned</span>
+                            </button>
+                        <% } else if (isAvailable) { %>
+                            <button class="plan-button available" onclick="handlePlanSelection(<%= plan.id %>)">
+                                <span class="btn-icon">
+                                    <% if (userMembership && plan.id > userMembership.planId) { %>⬆️<% } else { %>🎯<% } %>
+                                </span>
+                                <span class="btn-text">
+                                    <% if (userMembership && plan.id > userMembership.planId) { %>
+                                        Upgrade
+                                    <% } else { %>
+                                        Select Plan
+                                    <% } %>
+                                </span>
+                            </button>
+                        <% } else { %>
+                            <button class="plan-button locked" disabled>
+                                <span class="btn-icon">🔒</span>
+                                <span class="btn-text">Locked</span>
+                            </button>
+                        <% } %>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <% if (plan.membersPerCycle && plan.membersInCurrentCycle !== undefined) { %>
+                        <div class="cycle-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" 
+                                     style="width: <%= (plan.membersInCurrentCycle / plan.membersPerCycle * 100) %>%"></div>
+                            </div>
+                            <div class="progress-text">
+                                <%= ((plan.membersInCurrentCycle / plan.membersPerCycle) * 100).toFixed(0) %>% Full
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="no-plans">
+            <div class="no-plans-icon">🎯</div>
+            <h3>No Plans Available</h3>
+            <p>Plans are currently being loaded or not available.</p>
+        </div>
+    <% } %>
+</div>
+
+<style>
+.plans-grid-component {
+    width: 100%;
+}
+
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.plan-card {
+    background: var(--tg-theme-bg-color);
+    border: 2px solid #e1e5e9;
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.plan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.plan-card:hover::before {
+    transform: scaleX(1);
+}
+
+.plan-card.starter {
+    border-color: #ffeaa7;
+}
+
+.plan-card.premium {
+    border-color: #a29bfe;
+}
+
+.plan-card.elite {
+    border-color: #fd79a8;
+}
+
+.plan-card.infinity {
+    border-color: #00b894;
+}
+
+.plan-card.available {
+    border-color: var(--tg-theme-button-color);
+    box-shadow: 0 4px 20px rgba(36, 129, 204, 0.15);
+}
+
+.plan-card.owned {
+    border-color: #28a745;
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+}
+
+.plan-card.locked {
+    opacity: 0.6;
+    border-color: #dee2e6;
+    background: rgba(108, 117, 125, 0.05);
+}
+
+.plan-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+.badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.available {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.badge.owned {
+    background: #28a745;
+    color: white;
+}
+
+.badge.locked {
+    background: #6c757d;
+    color: white;
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 24px;
+    margin-top: 12px;
+}
+
+.plan-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.tier-icon {
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+}
+
+.plan-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--tg-theme-text-color);
+}
+
+.plan-level {
+    color: var(--tg-theme-hint-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.plan-price {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.plan-price .amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--tg-theme-button-color);
+    display: block;
+    line-height: 1;
+}
+
+.plan-price .currency {
+    font-size: 1rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.plan-stats {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 8px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--tg-theme-text-color);
+    font-size: 0.875rem;
+}
+
+.plan-benefits {
+    margin-bottom: 24px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 0.875rem;
+    color: var(--tg-theme-text-color);
+}
+
+.benefit-item.premium {
+    color: var(--tg-theme-button-color);
+    font-weight: 500;
+}
+
+.benefit-item.elite {
+    color: #fd79a8;
+    font-weight: 500;
+}
+
+.benefit-icon {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.plan-button {
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.plan-button.available {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.plan-button.available:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(36, 129, 204, 0.3);
+}
+
+.plan-button.owned {
+    background: #28a745;
+    color: white;
+    cursor: default;
+}
+
+.plan-button.locked {
+    background: #dee2e6;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.cycle-progress {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e1e5e9;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--tg-theme-button-color) 0%, #28a745 100%);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--tg-theme-hint-color);
+    font-weight: 500;
+}
+
+.no-plans {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--tg-theme-hint-color);
+}
+
+.no-plans-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.no-plans h3 {
+    margin-bottom: 8px;
+    color: var(--tg-theme-text-color);
+}
+
+.no-plans p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .plans-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 16px 0;
+    }
+    
+    .plan-card {
+        padding: 20px;
+    }
+    
+    .plan-price .amount {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .plan-card {
+        padding: 16px;
+    }
+    
+    .plan-header {
+        margin-bottom: 20px;
+    }
+    
+    .plan-stats {
+        padding: 12px;
+    }
+    
+    .benefit-item {
+        padding: 6px 0;
+    }
+}
+
+/* Animation Enhancements */
+.plan-card {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.plan-card:nth-child(1) { animation-delay: 0.1s; }
+.plan-card:nth-child(2) { animation-delay: 0.2s; }
+.plan-card:nth-child(3) { animation-delay: 0.3s; }
+.plan-card:nth-child(4) { animation-delay: 0.4s; }
+.plan-card:nth-child(5) { animation-delay: 0.5s; }
+.plan-card:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dark Theme */
+[data-theme="dark"] .plan-card {
+    border-color: #333333;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .plan-card.available {
+    box-shadow: 0 4px 20px rgba(139, 180, 217, 0.15);
+}
+
+[data-theme="dark"] .plan-stats {
+    background: #2a2a2a;
+}
+
+[data-theme="dark"] .cycle-progress {
+    border-top-color: #333333;
+}
+</style>
+
+<script>
+function handlePlanSelection(planId) {
+    // Haptic feedback
+    if (window.Telegram?.WebApp?.HapticFeedback) {
+        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+    
+    // Check if user has wallet connected
+    if (!window.APP_DATA?.user?.walletAddress) {
+        if (window.Telegram?.WebApp) {
+            window.Telegram.WebApp.showAlert('Please connect your wallet first');
+        } else {
+            alert('Please connect your wallet first');
+        }
+        window.location.href = '/wallet/connect';
+        return;
+    }
+    
+    // Redirect to plan details or show modal
+    if (typeof window.selectPlan === 'function') {
+        window.selectPlan(planId);
+    } else {
+        window.location.href = `/membership/plans/${planId}`;
+    }
+}
+
+// Initialize grid animations on scroll
+if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const planCards = document.querySelectorAll('.plan-card');
+        planCards.forEach(card => {
+            card.style.animationPlayState = 'paused';
+            observer.observe(card);
+        });
+    });
+}
+</script>
